@@ -1,0 +1,74 @@
+.wg-input {
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    .wg-input-inner{
+        border: 1px solid #ccc;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+        outline: none;
+        height: 32px;
+        line-height: 32px;
+        padding: 4px 10px;
+        transition:all .3s;
+        font-size: 14px;
+        &::placeholder {
+            color: #ccc;
+        }
+        &:focus{
+            box-shadow: 0px 0px 0px 2px rgba(24, 144, 255, $alpha: .1);
+            border-color: #40a9ff;
+        }
+    }
+    &.wg-input-sm {
+        .wg-input-inner {
+            height: 24px;
+            line-height: 24px;
+        }
+    }
+    &.wg-input-md {
+        .wg-input-inner {
+            height: 32px;
+            line-height: 32px;
+        }
+    }
+    &.wg-input-lg {
+        .wg-input-inner {
+            height: 40px;
+            line-height: 40px;
+        }
+    }
+    &.wg-input-affix-wrapper{
+        display: inline-flex;
+        border: 1px solid #ccc;  
+        display: inline-flex;
+        align-items: center;
+        padding: 0px 11px;
+        transition: all .3s;
+        .wg-input-inner{
+            border: 0px!important;
+            &:focus{
+                box-shadow: none;
+            }
+        }
+        &.wg-input-suffix-focus{
+            box-shadow: 0px 0px 0px 2px rgba(24, 144, 255, $alpha: .1);
+            border-color: #40a9ff;
+        }
+        .wg-input-suffix, .wg-input-prefix{
+            font-size: 14px;
+            height: 100%;
+            color: #666;
+            display: inline-block;
+        }
+    }
+    &.is-disabled {
+        background-color: #eee;
+        cursor: not-allowed;
+        input {
+            cursor: not-allowed; 
+        }
+    }
+}
+
