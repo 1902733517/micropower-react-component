@@ -3,22 +3,18 @@ import './App.css';
 import Input from './components/Input';
 import Icon from './components/Icon'
 import Select from './components/Select'
-import { InputProps } from './components/Input/Input';
-
 function App() {
-  const [value, setValue] =useState("");
   const clickEvent = (e:MouseEvent<HTMLSpanElement>) => {
-    console.log("图标点击事件");
-    console.log(e)
-    // e.target.value = '';
+
   }
-  const aaa = useRef(null);
+  const inputRef = useRef<null | HTMLInputElement>(null);
   return (
     <div className="App">
       <div style={{width: '300px', margin: '0 auto'}}>
         <Input 
           placeholder="size"
           disabled
+          ref={inputRef}
         />
         <br />
         <Input 
@@ -47,9 +43,12 @@ function App() {
         />
       </div>
       <div style={{width: '300px', margin: '0 auto', marginTop: '30px'}}>
-        <Select />
-        <br />
-        <Select />
+        <Select showSeach />
+      </div>
+      <br />
+      <br />
+      <div style={{width: '500px', margin: '0 auto', marginTop: '30px'}}>
+        <Select showSeach onSelect={(row) => {}} />
       </div>
       <div style={{height: '1100px'}}>
 

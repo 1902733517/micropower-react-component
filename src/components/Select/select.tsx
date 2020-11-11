@@ -1,8 +1,9 @@
-import React, { ChangeEvent, FC , ReactNode, useRef, useState} from 'react';
+import React, { ChangeEvent, FC , ReactNode, useEffect, useRef, useState} from 'react';
 import  ReactDOM from 'react-dom'
 import Input from '../Input';
 import classNames from 'classnames'
 import { createPopper } from '@popperjs/core';
+import Icon from '../Icon';
 
 export type DataSourceType<T = {}> = T;
 
@@ -12,82 +13,146 @@ export interface AutoCompleteProps {
     maxLength?: number,
     disabled?: boolean,
     clear?: boolean,
+    onSelect?: (val: Object) => void
     onSearch?: (val: string)=> DataSourceType[]
     dropdownRender?:  (menus: React.ReactNode) => React.ReactNode;
-}
+} 
 
 const AutoComplete:FC<AutoCompleteProps> = (props) => {
+    const options = useRef(
+        [
+            {id: 1001, name: '啦啦啦'},
+            {id: 1002, name: '哈哈哈'},
+            {id: 1003, name: '嘻嘻嘻'},
+            {id: 1004, name: '滋滋滋'},
+        ]
+    )
+    const [copyOption, setCopyOption] = useState<Array<any>>([]);
+    useEffect(()=>{
+        document.querySelector('body')?.addEventListener('click', function (e){
+            if(downRef.current) {
+                downRef.current.style.display = 'none';
+            }
+        })
+        setCopyOption(options.current)
+    }, [])
     const {
         showSeach,
         mode,
         maxLength,
         disabled,
         clear,
+        onSelect,
         onSearch,
         dropdownRender
     } = props;
+
+    const click = useRef(false);
+    const createdDom = useRef(false); //是否创建过下拉框
+    const inputRef = useRef<null | HTMLInputElement>(null);   
+    const downRef = useRef<null | HTMLDivElement>(null);  //下拉框绑定ref
+    const [isSelect, setIsSelect]  = useState(false);
     const classes = classNames("wg-select", {
         "is-disabled": disabled,
         "wg-select-show-search": showSeach
     });
-    const options = [
-        {id: 1001, name: '啦啦啦'},
-        {id: 1002, name: '哈哈哈'},
-        {id: 1003, name: '嘻嘻嘻'},
-        {id: 1004, name: '滋滋滋'},
-    ];
-    const click = useRef(false)
+    const [value, setValue] = useState('')
     const dropdown = () => {
-        console.log(click.current)
         return (
             !click.current ? <></> :
             <ul className="wg-select-dropdown-list">
-                {options.map(item => {
+                {options.current.length > 0 ? options.current.map(item => {
                     return (
-                        <li key={item.id} className="wg-select-dropdown-item"><span>{item.name}</span></li>
+                        <li key={item.id} className="wg-select-dropdown-item" onClick={()=>{getClickItem(item)}}><span>{item.name}</span></li>
                     )
-                })}
+                }) : <li className="wg-select-dropdown-item no-data"><span>暂无数据</span></li>}
             </ul>
         )   
         
-    }         
-    const clickEvent = (e:  React.MouseEvent<HTMLInputElement, MouseEvent>) => {
-        click.current = true;
-        if(document.querySelector('.wg-select-dropdown')) {
-            let aa =  document.querySelector('.wg-select-dropdown') as HTMLElement;
-            aa.style.display = '';
-            return;
+    } 
+    const getClickItem = (item:any) => {
+        if(downRef.current) {
+            downRef.current.style.display = 'none';
         }
-        let div = document.createElement('div');
-        div.className='wg-select-dropdown'
-        // div.style.width = e.target.offsetWidth +"px"
-        ReactDOM.render(dropdown(), div);
-        document.body.appendChild(div);
+        setValue(item.name);
+        setIsSelect(true);
+        if(onSelect) {
+            onSelect(item);
+        }
+    }
+    const clickEvent = (e:  React.MouseEvent<HTMLInputElement, MouseEvent>) => {
+        triggerDown();
+        e.stopPropagation();
+    }
+    const[timer, setTime] = useState<any>("");
+    const inputChange = (e: ChangeEvent<HTMLInputElement>) =>{
+        //定时器，防抖
+        setValue(e.target.value);
+        setIsSelect(false);
+        if(timer!==''){
+          clearTimeout(timer)
+          setTime('')
+        }
+        let a = setTimeout(()=>{
+            changeEvent(e);
+           setTime("")
+        },300)
+        setTime(a)
+      }
+    const triggerDown = ()=> {
+        click.current = true;
+        if(!createdDom.current) {
+            let divDom = document.createElement("div")
+            let down = <div className="wg-select-dropdown" ref={ downRef } style={{width: inputRef.current ? inputRef.current.offsetWidth +"px" : 'auto'}}>
+               <div>{ dropdown() }</div> 
+            </div>
+            ReactDOM.render(down, divDom);
+            document.body.appendChild(divDom);
+            createdDom.current = true;
+        } else {
+            if(downRef.current) {
+                downRef.current.style.display = '';
+            }
+        }
+        
         setTimeout(()=>{
-            const a = document.querySelector('.wg-select') as Element;
-            const b = document.querySelector('.wg-select-dropdown') as HTMLElement;
+            const a = inputRef.current as Element;
+            const b = downRef.current as HTMLElement;
             createPopper(a, b, {
                 placement: "bottom-start",
+                modifiers: [
+                    {
+                        name: 'offset',
+                        options: {
+                          offset: [0, 10],
+                        },
+                    },
+                ]
             });
-        })
-        
+        }, 200)
     }
-    const blurEvent = () => {
-        click.current = false; 
-        if(document.querySelector('.wg-select-dropdown')) {
-            let aa =  document.querySelector('.wg-select-dropdown') as HTMLElement; 
-            aa.style.display = 'none';
-        }
+    const changeEvent = (e: ChangeEvent<HTMLInputElement>) => {
+        options.current = copyOption.filter(item => item.name.indexOf(e.target.value) > -1);
+        downRef.current?.childNodes[0].remove();
+        createdDom.current = false;
+        let divDom = document.createElement("div")
+            let down = dropdown() 
+            ReactDOM.render(down, divDom);
+        downRef.current?.appendChild(divDom)
+        e.stopPropagation();
     }
-    const aa = useRef<HTMLInputElement>(null);
     return(
         <div>
             <div className={classes}>
                 <Input
+                    ref={inputRef}
                     disabled = {disabled}
                     readOnly = {!showSeach}
+                    value={value}
+                    onInput = {inputChange}
+                    prefix={<Icon icon="angle-down"/>}
                     onClick={clickEvent}
-                    onBlur={blurEvent}
+                    onBlur={(e) => {if(isSelect === false){setValue(''); e.target.value = ""; inputChange(e); }}}
                 />
             </div>
         </div>

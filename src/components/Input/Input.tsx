@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, InputHTMLAttributes, useState, useRef, ClassAttributes } from 'react';
+import React, { FC, ReactNode, InputHTMLAttributes, useState, useRef, ClassAttributes, forwardRef } from 'react';
 import classNames  from 'classnames';
 type size = 'lg' | "md" | 'sm'
 
@@ -10,7 +10,7 @@ export interface InputProps extends  Omit<InputHTMLAttributes<HTMLInputElement>,
 }
 
 
-export const Input:FC<InputProps>  = (props) => {
+export const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {  //forwardRef 转发 ref
     const {
         clearable,
         size,
@@ -19,6 +19,7 @@ export const Input:FC<InputProps>  = (props) => {
         disabled,
         onFocus,
         onBlur,
+        value,
         ...restProps
     } = props
 
@@ -29,26 +30,21 @@ export const Input:FC<InputProps>  = (props) => {
         "wg-input-suffix-focus": focus,
         "is-disabled": disabled
     })
-    let inputRef:HTMLInputElement;
-    const saveInput = (input:HTMLInputElement) => {
-        inputRef = input;
-    }
     return (
-        <div className={classes}>
+        <div className={classes} ref={ref}>
             { suffix && <span className="wg-input-suffix"> {suffix}</span> }
             <input
                 className="wg-input-inner"
                 disabled = {disabled}
                 {...restProps}
+                value = { value }
                 onFocus={(e)=>{setFocus(true); if(onFocus) {onFocus(e)}}}
                 onBlur={(e)=>{setFocus(false); if(onBlur){onBlur(e)}}}
-                ref={saveInput}
             />
             { prefix && <span className="wg-input-prefix">{prefix}</span> }
         </div>
-        
     )
-}
+})
 
 Input.defaultProps = {
     size: "md"
