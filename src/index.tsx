@@ -5,6 +5,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import './styles/index.scss'
 import 'antd/dist/antd.css'; 
+export { default as Select} from './components/Select'
 
 ReactDOM.render(
   <React.StrictMode>

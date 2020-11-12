@@ -1,8 +1,10 @@
 import React, { forwardRef, HtmlHTMLAttributes, MouseEvent, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import './App.css';
 import Input from './components/Input';
-import Icon from './components/Icon'
-import Select from './components/Select'
+import Icon from './components/Icon';
+// import Select from './components/Select';
+import {Select} from './index'
+
 function App() {
   const clickEvent = (e:MouseEvent<HTMLSpanElement>) => {
 
@@ -43,12 +45,14 @@ function App() {
         />
       </div>
       <div style={{width: '300px', margin: '0 auto', marginTop: '30px'}}>
-        <Select showSeach />
+        {/* <Select showSeach /> */}
       </div>
       <br />
       <br />
       <div style={{width: '500px', margin: '0 auto', marginTop: '30px'}}>
-        <Select showSeach onSelect={(row) => {}} />
+        <Select showSeach>
+          <Select.Option>下拉</Select.Option>
+        </Select>
       </div>
       <div style={{height: '1100px'}}>
 

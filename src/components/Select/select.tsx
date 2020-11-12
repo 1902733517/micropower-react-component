@@ -1,13 +1,12 @@
-import React, { ChangeEvent, FC , ReactNode, useEffect, useRef, useState} from 'react';
+import React, { ChangeEvent, FC , ReactNode, useEffect, useRef, useState, FocusEvent} from 'react';
 import  ReactDOM from 'react-dom'
 import Input from '../Input';
 import classNames from 'classnames'
 import { createPopper } from '@popperjs/core';
 import Icon from '../Icon';
-
 export type DataSourceType<T = {}> = T;
 
-export interface AutoCompleteProps {
+export interface SelectProps {
     showSeach?: boolean,
     mode?: boolean,
     maxLength?: number,
@@ -18,7 +17,7 @@ export interface AutoCompleteProps {
     dropdownRender?:  (menus: React.ReactNode) => React.ReactNode;
 } 
 
-const AutoComplete:FC<AutoCompleteProps> = (props) => {
+const Select:FC<SelectProps> = (props) => {
     const options = useRef(
         [
             {id: 1001, name: '啦啦啦'},
@@ -44,14 +43,15 @@ const AutoComplete:FC<AutoCompleteProps> = (props) => {
         clear,
         onSelect,
         onSearch,
-        dropdownRender
+        dropdownRender,
+        children,
     } = props;
 
     const click = useRef(false);
     const createdDom = useRef(false); //是否创建过下拉框
     const inputRef = useRef<null | HTMLInputElement>(null);   
     const downRef = useRef<null | HTMLDivElement>(null);  //下拉框绑定ref
-    const [isSelect, setIsSelect]  = useState(false);
+    const isSelect = useRef(false);
     const classes = classNames("wg-select", {
         "is-disabled": disabled,
         "wg-select-show-search": showSeach
@@ -61,26 +61,28 @@ const AutoComplete:FC<AutoCompleteProps> = (props) => {
         return (
             !click.current ? <></> :
             <ul className="wg-select-dropdown-list">
-                {options.current.length > 0 ? options.current.map(item => {
+                { children }
+                {/* {options.current.length > 0 ? options.current.map(item => {
                     return (
                         <li key={item.id} className="wg-select-dropdown-item" onClick={()=>{getClickItem(item)}}><span>{item.name}</span></li>
                     )
-                }) : <li className="wg-select-dropdown-item no-data"><span>暂无数据</span></li>}
+                }) : <li className="wg-select-dropdown-item no-data"><span>暂无数据</span></li>} */}
             </ul>
         )   
         
     } 
     const getClickItem = (item:any) => {
-        if(downRef.current) {
-            downRef.current.style.display = 'none';
-        }
         setValue(item.name);
-        setIsSelect(true);
+        isSelect.current = true;
         if(onSelect) {
             onSelect(item);
         }
+        if(downRef.current) {
+            downRef.current.style.display = 'none';
+        }
     }
     const clickEvent = (e:  React.MouseEvent<HTMLInputElement, MouseEvent>) => {
+        // options.current = copyOption.filter(item => item.name.indexOf(e.target.value) > -1);
         triggerDown();
         e.stopPropagation();
     }
@@ -88,7 +90,7 @@ const AutoComplete:FC<AutoCompleteProps> = (props) => {
     const inputChange = (e: ChangeEvent<HTMLInputElement>) =>{
         //定时器，防抖
         setValue(e.target.value);
-        setIsSelect(false);
+        isSelect.current = false;
         if(timer!==''){
           clearTimeout(timer)
           setTime('')
@@ -129,7 +131,7 @@ const AutoComplete:FC<AutoCompleteProps> = (props) => {
                     },
                 ]
             });
-        }, 200)
+        }, 0)
     }
     const changeEvent = (e: ChangeEvent<HTMLInputElement>) => {
         options.current = copyOption.filter(item => item.name.indexOf(e.target.value) > -1);
@@ -139,7 +141,15 @@ const AutoComplete:FC<AutoCompleteProps> = (props) => {
             let down = dropdown() 
             ReactDOM.render(down, divDom);
         downRef.current?.appendChild(divDom)
+        createdDom.current = true;
         e.stopPropagation();
+    }
+    const blurEvent = (e: FocusEvent<HTMLInputElement>) => {
+        setTimeout(()=>{
+            if(downRef.current) {
+                downRef.current.style.display = 'none';
+            }
+        }, 100)
     }
     return(
         <div>
@@ -152,7 +162,7 @@ const AutoComplete:FC<AutoCompleteProps> = (props) => {
                     onInput = {inputChange}
                     prefix={<Icon icon="angle-down"/>}
                     onClick={clickEvent}
-                    onBlur={(e) => {if(isSelect === false){setValue(''); e.target.value = ""; inputChange(e); }}}
+                    onBlur={blurEvent}
                 />
             </div>
         </div>
@@ -161,4 +171,4 @@ const AutoComplete:FC<AutoCompleteProps> = (props) => {
 }
 
 
-export default AutoComplete
+export default Select
