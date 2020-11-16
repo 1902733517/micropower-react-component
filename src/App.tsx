@@ -2,14 +2,32 @@ import React, { forwardRef, HtmlHTMLAttributes, MouseEvent, useCallback, useEffe
 import './App.css';
 import Input from './components/Input';
 import Icon from './components/Icon';
-// import Select from './components/Select';
-import {Select} from './index'
+import Select from './components/Select';
+// import {Select} from 'antd';
+// import {Select} from './index'
 
 function App() {
   const clickEvent = (e:MouseEvent<HTMLSpanElement>) => {
 
   }
+  const { Option } = Select;
   const inputRef = useRef<null | HTMLInputElement>(null);
+  const options = 
+    [
+      {id: 1001, name: '啦啦啦'},
+      {id: 1002, name: '哈哈哈'},
+      {id: 1003, name: '嘻嘻嘻'},
+      {id: 1004, name: '滋滋滋'},
+    ]
+  const changeEvent = (val1:any, val2:any)=> {
+    console.log(val1);
+    console.log(val2)
+  }
+  const selectEvent = (val1:any, val2:any) => {
+    console.log("*****");
+    console.log(val1);
+    console.log(val2);
+  }
   return (
     <div className="App">
       <div style={{width: '300px', margin: '0 auto'}}>
@@ -50,8 +68,23 @@ function App() {
       <br />
       <br />
       <div style={{width: '500px', margin: '0 auto', marginTop: '30px'}}>
-        <Select showSeach>
-          <Select.Option>下拉</Select.Option>
+        {/* <Select showSearch>
+          {options.map((item)=>{
+            return <Select.Option value={item.id}>{item.name}</Select.Option>
+          })}
+        </Select> */}
+        <Select
+          showSearch
+          // style={{ width: 200 }}
+          // onChange={changeEvent}
+          onSelect={selectEvent}
+          // filterOption={(input, option) =>
+          //   option?.children.indexOf(input) >= 0
+          // }
+        >
+          {options.map((item)=>{
+            return <Option value={item.id} key={item.id}>{item.name}</Option>
+          })}
         </Select>
       </div>
       <div style={{height: '1100px'}}>
