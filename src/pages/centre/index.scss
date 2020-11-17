@@ -1,0 +1,83 @@
+.centre {
+    width: 100%;
+    height: 100%;
+}
+.contentLeft {
+    float: left;
+    width: 30%;
+    height: 100%;
+    overflow: scroll;
+    font-size: 0.27rem;
+    background-color: #ececec;
+    color: #666666;
+    // border-right: 1px solid #dddddd;
+    padding-bottom: 56px;
+    box-shadow: 0 0px 8px 0 rgba(0, 0, 0, 0.1)
+}
+.contentRight{
+    float: left;
+    width: 70%;
+    height: 100%;
+    overflow: scroll;
+    padding-bottom: 16px;
+}
+.leftItem {
+    width: 100%;
+    height: 45px;
+    line-height: 45px;
+    text-align: center;
+    position: relative;
+    font-size: 16px;
+}
+.rightItem {
+    width: 50%;
+    height: 85px;
+    float: left;
+    text-align: center;
+}
+.rightItem i {
+    font-size: 18px;
+    // @include defaultThemeTextColorByTheme();
+}
+.rightItem p{
+    font-size: 16px;
+}
+.icons{
+    margin: 5px 0px;
+    font-size: 35px;
+}
+.icon{
+    width: 40px;
+    height: 40px;
+}
+.isActive{
+    // @include defaultThemeBgColor();
+    background-color: #fff;
+    color: #000;
+    font-weight: bold;
+}
+.activeIcon {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
+.activeIcon i{
+    font-size: 18px;
+}
+.noneItem {
+    width: 60%;
+    margin: 0 auto;
+    text-align: center;
+    height: 70vh;
+    // background: url('../../../static/images/noData.png')  no-repeat center;
+    background-size: 70%;
+    display: flex;
+    position: relative;
+}
+.noneItem h3{
+    position: absolute;
+    top: 70%;
+    width: 100%;
+    text-align: center;
+   
+}

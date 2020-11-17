@@ -75,12 +75,7 @@ function App() {
         </Select> */}
         <Select
           showSearch
-          // style={{ width: 200 }}
-          // onChange={changeEvent}
           onSelect={selectEvent}
-          // filterOption={(input, option) =>
-          //   option?.children.indexOf(input) >= 0
-          // }
         >
           {options.map((item)=>{
             return <Option value={item.id} key={item.id}>{item.name}</Option>

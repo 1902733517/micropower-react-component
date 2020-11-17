@@ -1,0 +1,50 @@
+.lunbo {
+    position: relative;
+}
+.functionGroup {
+    position: absolute;
+    left: 5%;
+    width: 90%;
+    z-index: 11;
+    height: 80px;
+    bottom: -40px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-around;
+}
+.function {
+    width: 90px;
+    height: 100%;
+    text-align: center;
+    font-size: 12px;
+    padding: 5px 0;
+}
+.yuan {
+    width: 38px;
+    height: 38px;
+    margin:  5px auto;
+    border-radius: 50%;
+    color: #fff;
+    box-shadow:#fff 0px 0px 1px inset;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.yuan i {
+    color: #fff;
+    font-size: 20px;
+}
+.yuan:first-child {
+    background: linear-gradient(84deg,#1AB6FF 0,#1AB6FF 0,#028FFF 100%);
+}
+.function:nth-child(2) .yuan {
+    background: linear-gradient(84deg,#FFB75E 0,#ED8F03 100%);
+}
+.function:nth-child(3) .yuan {
+    background: linear-gradient(-84deg,#00a6ac 0,#50b7c1 100%);
+}
+.function:nth-child(4) .yuan {
+    background: linear-gradient(-84deg,#799F0C 0,#ACBB78 100%);
+}
