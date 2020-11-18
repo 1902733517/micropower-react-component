@@ -15,7 +15,8 @@ export interface SelectProps {
     clear?: boolean,
     onSelect?: (val: string | number, option: Object) => void
     onSearch?: (val: string)=> DataSourceType[]
-    dropdownRender?:  (menus: React.ReactNode) => React.ReactNode;
+    dropdownRender?:  (menus: React.ReactNode) => React.ReactNode
+    style?: React.CSSProperties
 } 
 
 interface ISelectContext {
@@ -51,6 +52,7 @@ const Select:FC<SelectProps> = (props) => {
         onSearch,
         dropdownRender,
         children,
+        style
     } = props;
 
     const click = useRef(false);
@@ -196,6 +198,7 @@ const Select:FC<SelectProps> = (props) => {
                     prefix={<Icon icon="angle-down"/>}
                     onClick={clickEvent}
                     onBlur={blurEvent}
+                    style={style}
                 />
             </div>
         </div>

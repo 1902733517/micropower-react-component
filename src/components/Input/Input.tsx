@@ -7,6 +7,7 @@ export interface InputProps extends  Omit<InputHTMLAttributes<HTMLInputElement>,
     size?: size,
     suffix?: ReactNode,
     prefix?: ReactNode
+    style?: React.CSSProperties
 }
 
 
@@ -20,6 +21,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => { 
         onFocus,
         onBlur,
         value,
+        style,
         ...restProps
     } = props
 
@@ -31,7 +33,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => { 
         "is-disabled": disabled
     })
     return (
-        <div className={classes} ref={ref}>
+        <div className={classes} ref={ref} style = {style}>
             { suffix && <span className="wg-input-suffix"> {suffix}</span> }
             <input
                 className="wg-input-inner"

@@ -18,6 +18,7 @@ class auth extends React.Component{
             appid: appId,
         })
         var environmental = React.$commonJS.getEnvironmental();
+        console.log(environmental, '_________');
         var url='https://open.weixin.qq.com/connect/oauth2/authorize?appid='+appId+'&redirect_uri='+encodeURIComponent(this.state.redirectUri, "UTF-8")+'&response_type=code&scope='+environmental.scope;
         window.location.href = url;
     }

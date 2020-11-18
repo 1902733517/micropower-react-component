@@ -91,7 +91,6 @@ commonJS.getLocationOrigin = () => {
 
 
 
-
-
+React.$commonJS = commonJS;
 export default commonJS;
 

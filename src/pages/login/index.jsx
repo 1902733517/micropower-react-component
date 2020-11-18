@@ -1,13 +1,13 @@
 import React, {useState} from 'react'
 import './index.scss'
 import { Toast } from 'antd-mobile';
-import commonJS from '../../util/commonJS'
+
 export default () => {
     const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
     const login = () => {
-        let postUrl = 'user/v1/'+ commonJS.getEnvironmental()?.postUserInfoUrl;
-            commonJS.post(postUrl, {phone, password}, function (res:any) {
+        let postUrl = 'user/v1/'+ React.$commonJS.getEnvironmental().postUserInfoUrl;
+        React.$commonJS.post(postUrl, {phone, password}, function (res) {
             if(res.code == 200) {
                 Toast.info('登录成功，正在为您跳转', 2);
                 localStorage.setItem('token', res.token)
