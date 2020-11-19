@@ -17,18 +17,20 @@ export interface SelectProps {
     onSearch?: (val: string)=> DataSourceType[]
     dropdownRender?:  (menus: React.ReactNode) => React.ReactNode
     style?: React.CSSProperties
+    placeholder?: string
 } 
 
 interface ISelectContext {
-    search: string,
+    search: string | number,
+    isSelected: string | number,
     onClick?: (value: string | number, option: OptionProps) => void
 }
 
-export const SelectContext = createContext<ISelectContext>({search:''})
+export const SelectContext = createContext<ISelectContext>({search:'', isSelected: ''})
 
 const Select:FC<SelectProps> = (props) => {
-    const [value, setValue] = useState("");
-    const valueRef = useRef("");
+    const [value, setValue] = useState<string|number>("");
+    const valueRef = useRef<string | number>("");
     useEffect(()=>{
         let clickIndex = document.querySelector('body')?.addEventListener('click', function (e){
             if(downRef.current) {
@@ -52,7 +54,8 @@ const Select:FC<SelectProps> = (props) => {
         onSearch,
         dropdownRender,
         children,
-        style
+        style,
+        placeholder
     } = props;
 
     const click = useRef(false);
@@ -60,23 +63,33 @@ const Select:FC<SelectProps> = (props) => {
     const inputRef = useRef<null | HTMLInputElement>(null);   
     const downRef = useRef<null | HTMLDivElement>(null);  //下拉框绑定ref
     const isSelect = useRef(false);
+    const [selectVal, setSelectVal] = useState<string| number>('');
+    const [selectChild, setSelectChild] = useState<string>('')
     const classes = classNames("wg-select", {
         "is-disabled": disabled,
         "wg-select-show-search": showSearch
     });
     const clickEvent2 = (val: string|number, option: OptionProps) => {
+        setSelectVal(val);
+        setSelectChild(option.children as string);
+        valueRef.current = typeof(option.children) == 'string' ? option.children : "";
+        setValue(valueRef.current);
+        isSelect.current = true;
         if(onSelect) {
-            valueRef.current = typeof(option.children) == 'string' ? option.children : "";
-            setValue(valueRef.current);
-            isSelect.current = true
             onSelect(val, option);
         }
     }
     const passContex:ISelectContext = {
         search: valueRef.current,
-        onClick: clickEvent2
+        onClick: clickEvent2,
+        isSelected: selectVal,
     }    
     const clickEvent = (e:  React.MouseEvent<HTMLInputElement, MouseEvent>) => {
+        if(selectChild) {
+            setValue('');
+            valueRef.current = '';
+            passContex.search = '';
+        }
         triggerDown();
         e.stopPropagation();
     }
@@ -184,6 +197,10 @@ const Select:FC<SelectProps> = (props) => {
                 setValue('');
                 valueRef.current = '';
             }
+            if(selectChild && valueRef.current == "") {
+                setValue(selectChild)
+                valueRef.current = selectVal;
+            }
         }, 100)
     }
     return(
@@ -194,6 +211,7 @@ const Select:FC<SelectProps> = (props) => {
                     disabled = {disabled}
                     readOnly = {!showSearch}
                     value={value}
+                    placeholder={selectChild || placeholder}
                     onInput = {inputChange}
                     prefix={<Icon icon="angle-down"/>}
                     onClick={clickEvent}

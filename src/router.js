@@ -3,7 +3,7 @@ import { BrowserRouter, Switch, Route } from 'react-router-dom'
 import Login from './pages/login/index'
 import Home from './pages/home/index'
 import auth from "./pages/auth/index";
-import scan from './pages/home/scan'
+import scan from './pages/home/scan.tsx'
 
 const Router =  () => {
     
