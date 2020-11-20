@@ -70,6 +70,55 @@ storage.getUserName = function () {
     return user.name
 }
 
+//获取是否需要组织授权权限
+storage.getOrganAuthorize = function () {
+    var user = storage.getUser();
+    if(user == null){
+        return ''
+    }
+    return user.organAuthorize;
+}
+
+//获取公司id
+storage.getCompanyId = function () {
+    var user = storage.getUser ();
+    if(user == null){
+        return ''
+    }
+    return user.companyID;
+}
+
+
+//所属组织（上级组织）
+storage.invoiceName = function () {
+    var organ = storage.getOrgan();
+    if(organ == null) {
+        return ''
+    }
+    return organ.invoiceName;
+}
+
+
+
+
+
+//获取是否需要组织授权权限
+storage.getDepartmentAuthorize = function () {
+    var user = storage.getUser();
+    if(user == null){
+        return ''
+    }
+    return user.departmentAuthorize;
+}
+
+//获取组织税号
+storage.getOrganTaxNo = function () {
+    var organ = storage.getOrgan();
+    if(organ == null) {
+        return ''
+    }
+    return organ.organTaxNo;
+}
 
 
 export function getToken () {

@@ -14,10 +14,12 @@ export interface SelectProps {
     disabled?: boolean,
     clear?: boolean,
     onSelect?: (val: string | number, option: Object) => void
-    onSearch?: (val: string)=> DataSourceType[]
+    onSearch?: (val: ChangeEvent<HTMLInputElement>) => void
     dropdownRender?:  (menus: React.ReactNode) => React.ReactNode
     style?: React.CSSProperties
-    placeholder?: string
+    placeholder?: string,
+    romote?: boolean, // 远程搜索
+    romoteMethod?: Promise<DataSourceType> | DataSourceType[]
 } 
 
 interface ISelectContext {
@@ -55,7 +57,9 @@ const Select:FC<SelectProps> = (props) => {
         dropdownRender,
         children,
         style,
-        placeholder
+        placeholder,
+        romote,
+        ...restProps
     } = props;
 
     const click = useRef(false);
@@ -104,10 +108,16 @@ const Select:FC<SelectProps> = (props) => {
           setTime('')
         }
         let a = setTimeout(()=>{
-            changeEvent(e);
-           setTime("")
+            if(!romote) {
+                console.log("****")
+                changeEvent(e);
+            }
+            setTime("");
+            if(onSearch) {
+                onSearch(e);
+            }
         },300)
-        setTime(a)
+        setTime(a);
     }
     const changeEvent = (e: ChangeEvent<HTMLInputElement>) => {
         // options.current = copyOption.filter(item => item.name.indexOf(e.target.value) > -1);

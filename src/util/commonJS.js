@@ -91,6 +91,38 @@ commonJS.getLocationOrigin = () => {
 
 
 
+//获取当前时间
+commonJS.dateFormat = function(){
+    var date = new Date();
+    var seperator1 = "-";
+    var seperator2 = ":";
+    var month = date.getMonth() + 1;
+    var strDate = date.getDate();
+    if (month >= 1 && month <= 9) {
+        month = "0" + month;
+    }
+    if (strDate >= 0 && strDate <= 9) {
+        strDate = "0" + strDate;
+    }
+    let h = date.getHours();
+    h = h < 10 ? ('0' + h) : h;
+    let m = date.getMinutes();
+    m = m < 10 ? ('0' + m) : m;
+    let s = date.getSeconds();
+    s = s < 10 ? ('0' + s) : s;
+    var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate
+            + " " + h + seperator2 + m  + seperator2 + s;
+    return currentdate;
+}
+
+
+//获取当前时间
+commonJS.dateFormatSub =  () => {
+    let time = commonJS.dateFormat();
+    return time.substring(0, 10)
+}
+
+
 React.$commonJS = commonJS;
 export default commonJS;
 
