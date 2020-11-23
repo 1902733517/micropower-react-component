@@ -1,15 +1,17 @@
-import React,{ useState, useEffect, useCallback, ChangeEvent} from 'react'
+import React,{ useState, useEffect, useCallback, ChangeEvent, useRef} from 'react'
 import './scan.scss';
 import MGSelect from '../../components/MGSelect';
 import { Switch , Button, WhiteSpace} from 'antd-mobile';
 import '../../util/commonJS'
 import storage from '../../util/storage';
 import commonJS from '../../util/commonJS';
+import Axios from 'axios';
 
 function Scan(props:any) {
     const [list, setList] = useState([{id:'1', name: '语文书'},{id:'2', name: '数学'},{id:'3', name: '英语'}, {id: '4', name: '语文'}]);
     const [organList, setOrganList] = useState([]);
-    const [projectVal, setProjectVal] = useState<string | number>("");
+    const projectVal = useRef("")
+    // const [projectVal, setProjectVal] = useState<string | number>("");
     const [projectList, setProjectList] = useState([])
     const [invoiceData, setInvoiceData] = useState({
         companyId: storage.getCompanyId(),
@@ -53,30 +55,34 @@ function Scan(props:any) {
     }
     useEffect(()=>{
         setOrganList(getOrganList());
-        console.log("((((改变))))");
+    }, [])
+    const searchEvent = (e: ChangeEvent<HTMLInputElement>) => {
+        projectVal.current = e.target.value
+        romoteMethod();
+    }
+    const romoteMethod = () => {
+        console.log("^^^^^改变……………………")
         let query = {
-            search: projectVal, 
+            search:  projectVal.current, 
             organAuthorize: storage.getOrganAuthorize(), 
             departmentAuthorize: storage.getDepartmentAuthorize(), 
             // organID: invoiceData.organId, 
             // organId: invoiceData.organId, 
             otherSearch: [{name: "apply", type: "brace", expression: "in", value: "1,9"}],
             organID: storage.getOrganId(), 
-            companyID: storage.getCompanyId(), 
+            companyID: storage.getCompanyId(),
             organId: storage.getOrganId(),
-            companyId: storage.getCompanyId(), 
+            companyId: storage.getCompanyId(),
             byUserID: storage.getUserId(),
             byUserId: storage.getUserId()
         }
-        commonJS.post("project/v1/getProjectList?pageNum=1&pageSize=10", query, function (res:any) {
-            console.log(res);
+        const res =  commonJS.post("project/v1/getProjectList?pageNum=1&pageSize=10", query, function (res:any) {
             if(res.code == 200) {
-                setProjectList(res.data.records)
+                // setProjectList(res.data.records);
             }
         })
-    }, [projectVal])
-    const searchEvent = (e: ChangeEvent<HTMLInputElement>) => {
-        setProjectVal(e.target.value)
+        console.log(res)
+        return res;
     }
     return (
         <div className="scan">
@@ -97,7 +103,8 @@ function Scan(props:any) {
                         showSearch
                         onSearch = {searchEvent}
                         romote
-                        selectOptions={projectList}
+                        romoteMethod= {romoteMethod}
+                        // selectOptions={projectList}
                     >
                     </MGSelect>
                 </div>

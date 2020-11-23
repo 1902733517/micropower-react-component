@@ -45,13 +45,15 @@ commonJS.getEnvironmental = () => {
 
 
 commonJS.post = function (url, query, callBack) {
-    request({
+    return request({
         method: 'post',
         url,
         data: query
     }).then(response => {
-        callBack(response)
+        callBack(response);
+        return response;
     }).catch (err => {
+        return [];
         console.log(err)
     })
 }

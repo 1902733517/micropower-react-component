@@ -14,7 +14,7 @@ export const Option = forwardRef<HTMLLIElement, OptionProps>((props, ref) => {
     } = props;
     const context = useContext(SelectContext);
     const classes = classNames("wg-select-dropdown-item", {
-         "is-selected" : (context.isSelected === value)
+        "is-selected" : (context.isSelected === value)
     })
    
     const clickEvent =  (e: React.MouseEvent<HTMLLIElement, MouseEvent>) => {

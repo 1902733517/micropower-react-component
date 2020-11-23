@@ -19,7 +19,7 @@ export interface SelectProps {
     style?: React.CSSProperties
     placeholder?: string,
     romote?: boolean, // 远程搜索
-    romoteMethod?: Promise<DataSourceType> | DataSourceType[]
+    romoteMethod?: () => Promise<DataSourceType> | DataSourceType[]
 } 
 
 interface ISelectContext {
@@ -33,19 +33,6 @@ export const SelectContext = createContext<ISelectContext>({search:'', isSelecte
 const Select:FC<SelectProps> = (props) => {
     const [value, setValue] = useState<string|number>("");
     const valueRef = useRef<string | number>("");
-    useEffect(()=>{
-        let clickIndex = document.querySelector('body')?.addEventListener('click', function (e){
-            if(downRef.current) {
-                downRef.current.style.display = 'none';
-            }
-        })
-        
-        return () => {
-            if(clickIndex) {
-                document.removeEventListener("click", clickIndex)
-            }
-        }
-    }, [])
     const {
         showSearch,
         mode,
@@ -61,6 +48,19 @@ const Select:FC<SelectProps> = (props) => {
         romote,
         ...restProps
     } = props;
+    useEffect(()=>{
+        let clickIndex = document.querySelector('body')?.addEventListener('click', function (e){
+            if(downRef.current) {
+                downRef.current.style.display = 'none';
+            }
+        })
+        
+        return () => {
+            if(clickIndex) {
+                document.removeEventListener("click", clickIndex)
+            }
+        }
+    }, [])
 
     const click = useRef(false);
     const createdDom = useRef(false); //是否创建过下拉框
@@ -73,7 +73,7 @@ const Select:FC<SelectProps> = (props) => {
         "is-disabled": disabled,
         "wg-select-show-search": showSearch
     });
-    const clickEvent2 = (val: string|number, option: OptionProps) => {
+    const clickEventBack = (val: string|number, option: OptionProps) => {
         setSelectVal(val);
         setSelectChild(option.children as string);
         valueRef.current = typeof(option.children) == 'string' ? option.children : "";
@@ -85,7 +85,7 @@ const Select:FC<SelectProps> = (props) => {
     }
     const passContex:ISelectContext = {
         search: valueRef.current,
-        onClick: clickEvent2,
+        onClick: clickEventBack,
         isSelected: selectVal,
     }    
     const clickEvent = (e:  React.MouseEvent<HTMLInputElement, MouseEvent>) => {
@@ -109,7 +109,6 @@ const Select:FC<SelectProps> = (props) => {
         }
         let a = setTimeout(()=>{
             if(!romote) {
-                console.log("****")
                 changeEvent(e);
             }
             setTime("");

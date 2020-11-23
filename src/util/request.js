@@ -36,6 +36,10 @@ instance.interceptors.response.use(
                 Toast.info(data.message, 2)
                 return response.data;
                 break
+            case 510:
+                Toast.info(data.message, 2)
+                return response.data;
+                break
             default:
                 break;
         }
