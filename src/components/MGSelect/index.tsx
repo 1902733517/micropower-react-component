@@ -17,7 +17,7 @@ const MGSelect:FC<MGSelectProps> = (props)=> {
     } = props;
     
     const getChildren = () => {
-        console.log("*");
+        console.log("***");
         if(selectOptions && selectOptions.length > 0) {
             return selectOptions?.map(item => {
                 return <Option value={item.id} key={item.id}>{item[showName]}</Option>
