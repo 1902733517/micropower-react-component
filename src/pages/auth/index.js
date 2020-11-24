@@ -18,7 +18,6 @@ class auth extends React.Component{
             appid: appId,
         })
         var environmental = React.$commonJS.getEnvironmental();
-        console.log(environmental, '_________');
         var url='https://open.weixin.qq.com/connect/oauth2/authorize?appid='+appId+'&redirect_uri='+encodeURIComponent(this.state.redirectUri, "UTF-8")+'&response_type=code&scope='+environmental.scope;
         window.location.href = url;
     }
@@ -28,10 +27,11 @@ class auth extends React.Component{
         this.setState({
             code: code
         })
-        if(React.$commonJS.getENV() == ' dingding') {
+        if(React.$commonJS.getENV() === ' dingding') {
 
         } else {
             var environmental = React.$commonJS.getEnvironmental();
+            var that = this;
             Toast.loading("加载中");
             if(code == '') {
                 var wxInfo = React.$storage.getLocalStorage('wxInfo');
@@ -39,7 +39,6 @@ class auth extends React.Component{
                     this.getAppId();
                 }
                 else {
-                    var that = this;
                     React.$commonJS.post('wechat/v1/findWechat?isQyWX='+ environmental.isQyWX, null, function (res) {
                         if(res.code == 200) {
                             localStorage.setItem('wxInfo',JSON.stringify(res.data))
@@ -49,7 +48,6 @@ class auth extends React.Component{
                 }
             } else {
                 var postUrl = "user/v1/" + environmental.postCodeUrl;
-                var that = this;
                 React.$commonJS.post(postUrl+"?code="+ code, null, function (res) {
                     if(res.code == 512) {  //未绑定账号
                         React.$storage.setLocalStorage('wxUser', JSON.stringify(res.data))

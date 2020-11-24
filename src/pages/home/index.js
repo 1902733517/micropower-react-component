@@ -32,9 +32,9 @@ class TabBarExample  extends React.Component{
 
     renderContent(type) {
         let content = '';
-        if(type == 1 || type == undefined) {
+        if(type === 1 || type === undefined) {
             content = <HomePage history={this.props.history} />
-        } else if(type == 2) {
+        } else if(type === 2) {
             content = <Centre history={this.props.history} />
         }
         return (

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Carousel, WingBlank } from 'antd-mobile';
 // import '../../../src/style/antDesign.scss'
 import img1 from '../../../src/assets/images/home/wx1.png'

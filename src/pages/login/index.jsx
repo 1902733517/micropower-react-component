@@ -8,7 +8,7 @@ export default () => {
     const login = () => {
         let postUrl = 'user/v1/'+ React.$commonJS.getEnvironmental().postUserInfoUrl;
         React.$commonJS.post(postUrl, {phone, password}, function (res) {
-            if(res.code == 200) {
+            if(res.code === 200) {
                 Toast.info('登录成功，正在为您跳转', 2);
                 localStorage.setItem('token', res.token)
                 localStorage.setItem('user', JSON.stringify(res.data))

@@ -1,8 +1,6 @@
-import Search from 'antd/lib/input/Search';
-import React, { ChangeEvent, FC, forwardRef, LiHTMLAttributes, useContext, useEffect } from 'react'
+import React, { forwardRef, LiHTMLAttributes, useContext } from 'react'
 import {SelectContext} from './select'
 import classNames from 'classnames'
-import { idText } from 'typescript';
 
 export interface OptionProps extends LiHTMLAttributes<HTMLLIElement> {
     value: string | number,

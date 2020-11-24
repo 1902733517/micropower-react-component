@@ -1,6 +1,5 @@
 import  request from './request'
 import React from 'react'
-import { Toast } from 'antd-mobile';
 
 let commonJS = {
 
@@ -53,8 +52,8 @@ commonJS.post = function (url, query, callBack) {
         callBack(response);
         return response;
     }).catch (err => {
+        console.log(err);
         return [];
-        console.log(err)
     })
 }
 
@@ -88,7 +87,7 @@ commonJS.getLocationQuery = function(name) {
 }
 
 commonJS.getLocationOrigin = () => {
-    return commonJS.getENV() == 'wgfat' ? window.location.origin+'/micropower-app' : window.location.origin;
+    return commonJS.getENV() === 'wgfat' ? window.location.origin+'/micropower-app' : window.location.origin;
 }
 
 

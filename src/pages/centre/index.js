@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import "./index.scss"
 
 class Centre extends React.Component{
@@ -11,7 +11,7 @@ class Centre extends React.Component{
     componentDidMount () {
         var that = this;
         React.$commonJS.get('userinfo/v1/getLeftMenuList?organId='+React.$storage.getOrganId()+'&userId='+React.$storage.getUserId()+"&phone=1", function (res) {
-            if(res.code == 200) {
+            if(res.code === 200) {
                 that.setState({
                     navList: res.data,
                     current: 0,

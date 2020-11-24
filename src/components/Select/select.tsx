@@ -2,10 +2,9 @@ import React, { ChangeEvent, createContext, FC , ReactNode, useEffect, useRef, u
 import  ReactDOM from 'react-dom'
 import Input from '../Input';
 import classNames from 'classnames'
-import { createPopper, Obj } from '@popperjs/core';
+import { createPopper } from '@popperjs/core';
 import Icon from '../Icon';
 import { OptionProps } from './option';
-import Option from '../Select/option'
 export type DataSourceType<T = {}> = T;
 
 export interface SelectProps {

@@ -31,15 +31,15 @@ instance.interceptors.response.use(
         switch (code) {
             case 200:
                 return response.data;
-                break;
+   
             case 500:
                 Toast.info(data.message, 2)
                 return response.data;
-                break
+       
             case 510:
                 Toast.info(data.message, 2)
                 return response.data;
-                break
+       
             default:
                 break;
         }

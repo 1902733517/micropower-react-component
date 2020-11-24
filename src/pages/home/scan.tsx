@@ -8,7 +8,6 @@ import storage from '../../util/storage';
 import commonJS from '../../util/commonJS';
 
 function Scan(props:any) {
-    const Option = Select.Option;
     const [list, setList] = useState([{id:'1', name: '语文书'},{id:'2', name: '数学'},{id:'3', name: '英语'}, {id: '4', name: '语文'}]);
     const projectVal = useRef("")
     // const [projectVal, setProjectVal] = useState<string | number>("");
