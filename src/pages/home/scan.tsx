@@ -1,15 +1,15 @@
-import React,{ useState, useEffect, useCallback, ChangeEvent, useRef} from 'react'
+import React,{ useState, ChangeEvent, useRef} from 'react'
 import './scan.scss';
 import MGSelect from '../../components/MGSelect';
+import Select from '../../components/Select';
 import { Switch , Button, WhiteSpace} from 'antd-mobile';
 import '../../util/commonJS'
 import storage from '../../util/storage';
 import commonJS from '../../util/commonJS';
-import Axios from 'axios';
 
 function Scan(props:any) {
+    const Option = Select.Option;
     const [list, setList] = useState([{id:'1', name: '语文书'},{id:'2', name: '数学'},{id:'3', name: '英语'}, {id: '4', name: '语文'}]);
-    const [organList, setOrganList] = useState([]);
     const projectVal = useRef("")
     // const [projectVal, setProjectVal] = useState<string | number>("");
     const [projectList, setProjectList] = useState([])
@@ -53,15 +53,12 @@ function Scan(props:any) {
             return []
         }
     }
-    useEffect(()=>{
-        setOrganList(getOrganList());
-    }, [])
+    const [organList, setOrganList] = useState(getOrganList());
     const searchEvent = (e: ChangeEvent<HTMLInputElement>) => {
         projectVal.current = e.target.value
         romoteMethod();
     }
     const romoteMethod = () => {
-        console.log("^^^^^改变……………………")
         let query = {
             search:  projectVal.current, 
             organAuthorize: storage.getOrganAuthorize(), 
@@ -75,14 +72,10 @@ function Scan(props:any) {
             companyId: storage.getCompanyId(),
             byUserID: storage.getUserId(),
             byUserId: storage.getUserId()
-        }
-        const res =  commonJS.post("project/v1/getProjectList?pageNum=1&pageSize=10", query, function (res:any) {
-            if(res.code == 200) {
-                // setProjectList(res.data.records);
-            }
+        };
+        commonJS.post("project/v1/getProjectList?pageNum=1&pageSize=10", query, function (res:any) {
+            setProjectList(res.data.records);
         })
-        console.log(res)
-        return res;
     }
     return (
         <div className="scan">
@@ -94,6 +87,7 @@ function Scan(props:any) {
                         showName="organName"
                         selectOptions={organList}
                         placeholder="请选择"
+                        value={storage.getOrganId()}
                     >
                     </MGSelect>
                 </div>
@@ -104,7 +98,7 @@ function Scan(props:any) {
                         onSearch = {searchEvent}
                         romote
                         romoteMethod= {romoteMethod}
-                        // selectOptions={projectList}
+                        selectOptions={projectList}
                     >
                     </MGSelect>
                 </div>

@@ -46,7 +46,6 @@ class SearchInput extends React.Component {
   };
 
   handleSearch = value => {
-    
     if (value) {
       fetch(value, data => this.setState({ data }));
     } else {

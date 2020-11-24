@@ -5,21 +5,23 @@ import classNames from 'classnames'
 import { createPopper, Obj } from '@popperjs/core';
 import Icon from '../Icon';
 import { OptionProps } from './option';
+import Option from '../Select/option'
 export type DataSourceType<T = {}> = T;
 
 export interface SelectProps {
-    showSearch?: boolean,
-    mode?: boolean,
-    maxLength?: number,
-    disabled?: boolean,
-    clear?: boolean,
+    showSearch?: boolean
+    mode?: boolean
+    maxLength?: number
+    disabled?: boolean
+    clear?: boolean
     onSelect?: (val: string | number, option: Object) => void
     onSearch?: (val: ChangeEvent<HTMLInputElement>) => void
     dropdownRender?:  (menus: React.ReactNode) => React.ReactNode
     style?: React.CSSProperties
-    placeholder?: string,
-    romote?: boolean, // 远程搜索
-    romoteMethod?: () => Promise<DataSourceType> | DataSourceType[]
+    placeholder?: string
+    romote?: boolean // 远程搜索
+    value?: string|number
+    romoteMethod?: () => void
 } 
 
 interface ISelectContext {
@@ -30,8 +32,9 @@ interface ISelectContext {
 
 export const SelectContext = createContext<ISelectContext>({search:'', isSelected: ''})
 
+
 const Select:FC<SelectProps> = (props) => {
-    const [value, setValue] = useState<string|number>("");
+    const [val, setVal] = useState<string|number>("");
     const valueRef = useRef<string | number>("");
     const {
         showSearch,
@@ -46,21 +49,47 @@ const Select:FC<SelectProps> = (props) => {
         style,
         placeholder,
         romote,
+        value,
         ...restProps
     } = props;
+
     useEffect(()=>{
         let clickIndex = document.querySelector('body')?.addEventListener('click', function (e){
             if(downRef.current) {
                 downRef.current.style.display = 'none';
             }
         })
-        
         return () => {
             if(clickIndex) {
                 document.removeEventListener("click", clickIndex)
             }
         }
     }, [])
+    useEffect(()=>{
+        if(value) {
+            let a  = children as Array<any>
+            let row = a.find((item:any) => item.props.value === value )
+            if(row && typeof(row.props.children) === 'string') {
+                setSelectVal(val);
+                setSelectChild(row.props.children as string);
+                valueRef.current = typeof(row.props.children) == 'string' ? row.props.children : "";
+                setVal(valueRef.current);
+                isSelect.current = true;
+            }
+        }
+       
+        if(downRef.current && isFocus) {
+            downRef.current.childNodes[0].remove();
+            let b = 
+            <SelectContext.Provider value={passContex}>
+                { dropdown() }
+            </SelectContext.Provider>
+            let divDom = document.createElement("div")
+            ReactDOM.render(b, divDom);
+            downRef.current.appendChild(divDom)
+            downRef.current.style.display = '';
+        }
+    }, [children])
 
     const click = useRef(false);
     const createdDom = useRef(false); //是否创建过下拉框
@@ -68,29 +97,32 @@ const Select:FC<SelectProps> = (props) => {
     const downRef = useRef<null | HTMLDivElement>(null);  //下拉框绑定ref
     const isSelect = useRef(false);
     const [selectVal, setSelectVal] = useState<string| number>('');
-    const [selectChild, setSelectChild] = useState<string>('')
+    const [selectChild, setSelectChild] = useState<string>('');
+    const [isFocus, setIsFocus] = useState<Boolean>(false);
     const classes = classNames("wg-select", {
         "is-disabled": disabled,
         "wg-select-show-search": showSearch
     });
+    
     const clickEventBack = (val: string|number, option: OptionProps) => {
         setSelectVal(val);
         setSelectChild(option.children as string);
         valueRef.current = typeof(option.children) == 'string' ? option.children : "";
-        setValue(valueRef.current);
+        setVal(valueRef.current);
         isSelect.current = true;
         if(onSelect) {
             onSelect(val, option);
         }
     }
+
     const passContex:ISelectContext = {
         search: valueRef.current,
         onClick: clickEventBack,
-        isSelected: selectVal,
+        isSelected: selectVal
     }    
     const clickEvent = (e:  React.MouseEvent<HTMLInputElement, MouseEvent>) => {
         if(selectChild) {
-            setValue('');
+            setVal('');
             valueRef.current = '';
             passContex.search = '';
         }
@@ -100,7 +132,7 @@ const Select:FC<SelectProps> = (props) => {
     const[timer, setTime] = useState<any>("");
     const inputChange = (e: ChangeEvent<HTMLInputElement>) =>{
         //定时器，防抖
-        setValue(e.target.value);
+        setVal(e.target.value);
         valueRef.current = e.target.value;
         isSelect.current = false;
         if(timer!==''){
@@ -119,14 +151,6 @@ const Select:FC<SelectProps> = (props) => {
         setTime(a);
     }
     const changeEvent = (e: ChangeEvent<HTMLInputElement>) => {
-        // options.current = copyOption.filter(item => item.name.indexOf(e.target.value) > -1);
-        // downRef.current?.childNodes[0].remove();
-        // createdDom.current = false;
-        // let divDom = document.createElement("div")
-        //     let down = dropdown() 
-        //     ReactDOM.render(down, divDom);
-        // downRef.current?.appendChild(divDom)
-        // createdDom.current = true;
         if(downRef.current) {
             passContex.search = valueRef.current
             downRef.current.childNodes[0].remove();
@@ -145,11 +169,6 @@ const Select:FC<SelectProps> = (props) => {
             !click.current ? <></> :
             <ul className="wg-select-dropdown-list" >
                 { children ? children : <li className="wg-select-dropdown-item no-data"><span>暂无数据</span></li>}
-                {/* {options.current.length > 0 ? options.current.map(item => {
-                    return (
-                        <li key={item.id} className="wg-select-dropdown-item" onClick={()=>{getClickItem(item)}}><span>{item.name}</span></li>
-                    )
-                }) : <li className="wg-select-dropdown-item no-data"><span>暂无数据</span></li>} */}
             </ul>
         )   
     } 
@@ -198,19 +217,23 @@ const Select:FC<SelectProps> = (props) => {
         }, 0)
     }
     const blurEvent = (e: FocusEvent<HTMLInputElement>) => {
+        setIsFocus(false);
         setTimeout(()=>{
             if(downRef.current) {
                 downRef.current.style.display = 'none';
             }
             if(!isSelect.current) {
-                setValue('');
+                setVal('');
                 valueRef.current = '';
             }
             if(selectChild && valueRef.current == "") {
-                setValue(selectChild)
+                setVal(selectChild)
                 valueRef.current = selectVal;
             }
         }, 100)
+    }
+    const focusEvent = (e: FocusEvent<HTMLInputElement>) => {
+        setIsFocus(true)
     }
     return(
         <div>
@@ -219,12 +242,13 @@ const Select:FC<SelectProps> = (props) => {
                     ref={inputRef}
                     disabled = {disabled}
                     readOnly = {!showSearch}
-                    value={value}
+                    value={val}
                     placeholder={selectChild || placeholder}
                     onInput = {inputChange}
                     prefix={<Icon icon="angle-down"/>}
                     onClick={clickEvent}
                     onBlur={blurEvent}
+                    onFocus={focusEvent}
                     style={style}
                 />
             </div>

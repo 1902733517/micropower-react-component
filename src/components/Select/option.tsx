@@ -2,6 +2,7 @@ import Search from 'antd/lib/input/Search';
 import React, { ChangeEvent, FC, forwardRef, LiHTMLAttributes, useContext, useEffect } from 'react'
 import {SelectContext} from './select'
 import classNames from 'classnames'
+import { idText } from 'typescript';
 
 export interface OptionProps extends LiHTMLAttributes<HTMLLIElement> {
     value: string | number,
@@ -10,7 +11,7 @@ export interface OptionProps extends LiHTMLAttributes<HTMLLIElement> {
 export const Option = forwardRef<HTMLLIElement, OptionProps>((props, ref) => {
     const {
         value,
-        children,
+        children
     } = props;
     const context = useContext(SelectContext);
     const classes = classNames("wg-select-dropdown-item", {
