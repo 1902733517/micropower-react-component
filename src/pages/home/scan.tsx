@@ -1,17 +1,12 @@
-import React,{ useState, ChangeEvent, useRef} from 'react'
+import React,{ useState, ChangeEvent, useRef, useEffect} from 'react'
 import './scan.scss';
 import MGSelect from '../../components/MGSelect';
-import Select from '../../components/Select';
 import { Switch , Button, WhiteSpace} from 'antd-mobile';
 import '../../util/commonJS'
 import storage from '../../util/storage';
 import commonJS from '../../util/commonJS';
 
 function Scan(props:any) {
-    const [list, setList] = useState([{id:'1', name: '语文书'},{id:'2', name: '数学'},{id:'3', name: '英语'}, {id: '4', name: '语文'}]);
-    const projectVal = useRef("")
-    // const [projectVal, setProjectVal] = useState<string | number>("");
-    const [projectList, setProjectList] = useState([])
     const [invoiceData, setInvoiceData] = useState({
         companyId: storage.getCompanyId(),
         organId: storage.getOrganId(),//财务(法人)组织名称
@@ -52,9 +47,13 @@ function Scan(props:any) {
             return []
         }
     }
-    const [organList, setOrganList] = useState(getOrganList());
-    const searchEvent = (e: ChangeEvent<HTMLInputElement>) => {
-        projectVal.current = e.target.value
+    const [list, setList] = useState([{id:'1', name: '语文书'},{id:'2', name: '数学'},{id:'3', name: '英语'}, {id: '4', name: '语文'}]);
+    const projectVal = useRef("");
+    const [organList] = useState<Array<any>>(getOrganList());
+    const [projectList, setProjectList] = useState<Array<any>>([]);
+    const [contractList, setContractList] = useState<Array<any>>([])
+    const searchEvent = (val: string) => {
+        projectVal.current = val;
         romoteMethod();
     }
     const romoteMethod = () => {
@@ -62,19 +61,34 @@ function Scan(props:any) {
             search:  projectVal.current, 
             organAuthorize: storage.getOrganAuthorize(), 
             departmentAuthorize: storage.getDepartmentAuthorize(), 
-            // organID: invoiceData.organId, 
-            // organId: invoiceData.organId, 
+            organID: invoiceData.organId, 
+            organId: invoiceData.organId, 
             otherSearch: [{name: "apply", type: "brace", expression: "in", value: "1,9"}],
-            organID: storage.getOrganId(), 
             companyID: storage.getCompanyId(),
-            organId: storage.getOrganId(),
             companyId: storage.getCompanyId(),
             byUserID: storage.getUserId(),
             byUserId: storage.getUserId()
         };
-        commonJS.post("project/v1/getProjectList?pageNum=1&pageSize=10", query, function (res:any) {
+        commonJS.post("project/v1/getProjectList?pageNum=1&pageSize=6", query, function (res:any) {
             setProjectList(res.data.records);
         })
+    }
+    const selectOrgan = (val:string|number) =>  {
+        setInvoiceData((obj)=>{return Object.assign({}, obj, {
+            organId: val, 
+            projectId: 0,
+            projectNo: "",
+            projectName: "",
+        }); });
+        setProjectList([]);
+    }
+
+    const selectProject = (val:string|number, option: any) => {
+        setInvoiceData((obj)=>{return Object.assign({}, obj, {
+            projectId: option.id,
+            projectNo: option.no,
+            projectName: option.name,
+        }); });
     }
     return (
         <div className="scan">
@@ -82,37 +96,36 @@ function Scan(props:any) {
                 <div className="selectGroup">
                     <label>财务组织</label>
                     <MGSelect
-                        showSearch
                         showName="organName"
                         selectOptions={organList}
-                        placeholder="请选择"
-                        value={storage.getOrganId()}
+                        value={invoiceData.organId}
+                        onSelect={selectOrgan}
                     >
                     </MGSelect>
                 </div>
                 <div className="selectGroup">
                     <label>项目名称</label>
                     <MGSelect
-                        showSearch
                         onSearch = {searchEvent}
                         romote
+                        value={invoiceData.projectId}
                         romoteMethod= {romoteMethod}
                         selectOptions={projectList}
+                        onSelect={selectProject}
                     >
                     </MGSelect>
                 </div>
                 <div className="selectGroup">
                     <label>合同名称</label>
                     <MGSelect
-                        showSearch
-                        selectOptions={list}
+                        value={invoiceData.contractId}
+                        selectOptions={contractList}
                     >
                     </MGSelect>
                 </div>
                 <div className="selectGroup">
                     <label>部门名称</label>
                     <MGSelect
-                        showSearch
                         selectOptions={list}
                     >
                     </MGSelect>

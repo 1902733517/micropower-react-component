@@ -5,8 +5,9 @@ import classNames from 'classnames'
 import { createPopper } from '@popperjs/core';
 import Icon from '../Icon';
 import { OptionProps } from './option';
-export type DataSourceType<T = {}> = T;
+import useDebounce from '../../hooks/useDebounce'
 
+export type DataSourceType<T = {}> = T;
 export interface SelectProps {
     showSearch?: boolean
     mode?: boolean
@@ -14,27 +15,26 @@ export interface SelectProps {
     disabled?: boolean
     clear?: boolean
     onSelect?: (val: string | number, option: Object) => void
-    onSearch?: (val: ChangeEvent<HTMLInputElement>) => void
+    onSearch?: (val: string) => void
     dropdownRender?:  (menus: React.ReactNode) => React.ReactNode
     style?: React.CSSProperties
     placeholder?: string
     romote?: boolean // 远程搜索
     value?: string|number
+    listHeight?: number
     romoteMethod?: () => void
 } 
+
+export const SelectContext = createContext<ISelectContext>({search:'', isSelected: ''})
 
 interface ISelectContext {
     search: string | number,
     isSelected: string | number,
-    onClick?: (value: string | number, option: OptionProps) => void
+    onClick?: (value: string | number, option: OptionProps) => void,
+    romote?:boolean
 }
 
-export const SelectContext = createContext<ISelectContext>({search:'', isSelected: ''})
-
-
 const Select:FC<SelectProps> = (props) => {
-    const [val, setVal] = useState<string|number>("");
-    const valueRef = useRef<string | number>("");
     const {
         showSearch,
         mode,
@@ -49,9 +49,23 @@ const Select:FC<SelectProps> = (props) => {
         placeholder,
         romote,
         value,
+        listHeight,
         ...restProps
     } = props;
-
+    const [valText, setValText] = useState<string|number>("");  //iput框上展示的文本
+    const valTextRef = useRef<string | number>("");   // input框上的文本
+    const createdDom = useRef(false); //是否创建过下拉框
+    const inputRef = useRef<null | HTMLInputElement>(null);   
+    const downRef = useRef<null | HTMLDivElement>(null);  //下拉框绑定ref
+    const isSelect = useRef(false);  //是否下拉选中数据
+    const [selectVal, setSelectVal] = useState<string| number>(value?value: '');  // input框值
+    const [placeholderVal, setPlaceholderVal] = useState<string>('');  
+    const [isFocus, setIsFocus] = useState<Boolean>(false);
+    const classes = classNames("wg-select", {
+        "is-disabled": disabled,
+        "wg-select-show-search": showSearch
+    });
+    const debounceVal =  useDebounce(valText);  //防抖
     useEffect(()=>{
         let clickIndex = document.querySelector('body')?.addEventListener('click', function (e){
             if(downRef.current) {
@@ -64,118 +78,103 @@ const Select:FC<SelectProps> = (props) => {
             }
         }
     }, [])
-    useEffect(()=>{
-        if(value) {
+    useEffect(()=>{  //远程搜索
+        if(value!==undefined && value!==null) {
             let a  = children as Array<any>
-            let row = a.find((item:any) => item.props.value === value )
-            if(row && typeof(row.props.children) === 'string') {
-                setSelectVal(val);
-                setSelectChild(row.props.children as string);
-                valueRef.current = typeof(row.props.children) == 'string' ? row.props.children : "";
-                setVal(valueRef.current);
-                isSelect.current = true;
+            if(!(a instanceof Array)) {
+                // valTextRef.current = value;
+                // setValText(value);
+                // setPlaceholderVal('');
+            } else {
+                let row = a.find((item:any) => item.props.value === value )
+                if(row && typeof(row.props.children) === 'string') {
+                    valTextRef.current = typeof(row.props.children) == 'string' ? row.props.children : "";
+                    setValText(valTextRef.current);
+                    setPlaceholderVal(valTextRef.current.toString());
+                    isSelect.current = true;
+                }
+                // if(!row) {
+                //     console.log(value, children)
+                //     valTextRef.current = value;
+                //     setValText(value);
+                //     setPlaceholderVal('');
+                // }
+            }
+            
+        }
+        triggerDown();
+    }, [value, children])
+    useEffect(()=>{
+        if(!romote) {
+            if(downRef.current) {
+                passContex.search = valTextRef.current
+                downRef.current.childNodes[0].remove();
+                let b = 
+                <SelectContext.Provider value={passContex}>
+                    { dropdown() }
+                </SelectContext.Provider>
+                let divDom = document.createElement("div")
+                ReactDOM.render(b, divDom);
+                downRef.current.appendChild(divDom);
             }
         }
-       
-        if(downRef.current && isFocus) {
-            downRef.current.childNodes[0].remove();
-            let b = 
-            <SelectContext.Provider value={passContex}>
-                { dropdown() }
-            </SelectContext.Provider>
-            let divDom = document.createElement("div")
-            ReactDOM.render(b, divDom);
-            downRef.current.appendChild(divDom)
-            downRef.current.style.display = '';
-        }
-    }, [children])
-
-    const click = useRef(false);
-    const createdDom = useRef(false); //是否创建过下拉框
-    const inputRef = useRef<null | HTMLInputElement>(null);   
-    const downRef = useRef<null | HTMLDivElement>(null);  //下拉框绑定ref
-    const isSelect = useRef(false);
-    const [selectVal, setSelectVal] = useState<string| number>('');
-    const [selectChild, setSelectChild] = useState<string>('');
-    const [isFocus, setIsFocus] = useState<Boolean>(false);
-    const classes = classNames("wg-select", {
-        "is-disabled": disabled,
-        "wg-select-show-search": showSearch
-    });
+        if(onSearch && isFocus && valText) {
+            onSearch(debounceVal);
+        }  
+    }, [debounceVal])
     
-    const clickEventBack = (val: string|number, option: OptionProps) => {
-        setSelectVal(val);
-        setSelectChild(option.children as string);
-        valueRef.current = typeof(option.children) == 'string' ? option.children : "";
-        setVal(valueRef.current);
+    const clickEventItem = (val: string|number, option: OptionProps) => {
         isSelect.current = true;
+        setSelectVal(val);
+        valTextRef.current = typeof(option.children) == 'string' ? option.children : "";
+        setValText(valTextRef.current);
+        setPlaceholderVal(valTextRef.current);
         if(onSelect) {
             onSelect(val, option);
         }
     }
 
     const passContex:ISelectContext = {
-        search: valueRef.current,
-        onClick: clickEventBack,
-        isSelected: selectVal
+        search: valTextRef.current,
+        onClick: clickEventItem,
+        isSelected: selectVal,
+        romote:romote
     }    
-    const clickEvent = (e:  React.MouseEvent<HTMLInputElement, MouseEvent>) => {
-        if(selectChild) {
-            setVal('');
-            valueRef.current = '';
+    const clickEvent = (e: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
+        if(placeholderVal) {
+            setValText('');
+            valTextRef.current = '';
             passContex.search = '';
         }
         triggerDown();
         e.stopPropagation();
     }
-    const[timer, setTime] = useState<any>("");
     const inputChange = (e: ChangeEvent<HTMLInputElement>) =>{
-        //定时器，防抖
-        setVal(e.target.value);
-        valueRef.current = e.target.value;
+        let val= e.target.value;
+        setValText(val);
+        valTextRef.current = val;
         isSelect.current = false;
-        if(timer!==''){
-          clearTimeout(timer)
-          setTime('')
-        }
-        let a = setTimeout(()=>{
-            if(!romote) {
-                changeEvent(e);
-            }
-            setTime("");
-            if(onSearch) {
-                onSearch(e);
-            }
-        },300)
-        setTime(a);
     }
-    const changeEvent = (e: ChangeEvent<HTMLInputElement>) => {
-        if(downRef.current) {
-            passContex.search = valueRef.current
-            downRef.current.childNodes[0].remove();
-            let b = 
-            <SelectContext.Provider value={passContex}>
-                { dropdown() }
-            </SelectContext.Provider>
-            let divDom = document.createElement("div")
-            ReactDOM.render(b, divDom);
-            downRef.current.appendChild(divDom);
-        }
-        e.stopPropagation();
-    }
+    
     const dropdown = () => {
         return (
-            !click.current ? <></> :
+            !createdDom.current ? <></> :
             <ul className="wg-select-dropdown-list" >
                 { children ? children : <li className="wg-select-dropdown-item no-data"><span>暂无数据</span></li>}
             </ul>
         )   
     } 
     const triggerDown = ()=> {
-        click.current = true;
+        if(!isFocus) {
+            return;
+        }
+        if(romote && valTextRef.current == '' && placeholderVal == '') {
+            return;
+        }
         if(!createdDom.current) {
+            createdDom.current = true;
             let divDom = document.createElement("div");
-            let down = <div className="wg-select-dropdown" ref={ downRef } style={{width: inputRef.current ? inputRef.current.offsetWidth +"px" : 'auto'}}>
+            let down = <div className="wg-select-dropdown" ref={ downRef } style={{width: inputRef.current ? inputRef.current.offsetWidth +"px" : 'auto', maxHeight: listHeight ? listHeight : 256 +'px'}}>
                <div>
                    <SelectContext.Provider value={passContex}>
                         { dropdown() }
@@ -184,7 +183,6 @@ const Select:FC<SelectProps> = (props) => {
             </div>
             ReactDOM.render(down, divDom);
             document.body.appendChild(divDom);
-            createdDom.current = true;
         } else {
             if(downRef.current) {
                 downRef.current.childNodes[0].remove();
@@ -222,12 +220,12 @@ const Select:FC<SelectProps> = (props) => {
                 downRef.current.style.display = 'none';
             }
             if(!isSelect.current) {
-                setVal('');
-                valueRef.current = '';
+                setValText('');
+                valTextRef.current = '';
             }
-            if(selectChild && valueRef.current == "") {
-                setVal(selectChild)
-                valueRef.current = selectVal;
+            if(isSelect && placeholderVal && valTextRef.current == "") {
+                setValText(placeholderVal)
+                valTextRef.current = selectVal;
             }
         }, 100)
     }
@@ -241,8 +239,8 @@ const Select:FC<SelectProps> = (props) => {
                     ref={inputRef}
                     disabled = {disabled}
                     readOnly = {!showSearch}
-                    value={val}
-                    placeholder={selectChild || placeholder}
+                    value={valText}
+                    placeholder={placeholderVal || placeholder}
                     onInput = {inputChange}
                     prefix={<Icon icon="angle-down"/>}
                     onClick={clickEvent}

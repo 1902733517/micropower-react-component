@@ -13,11 +13,13 @@ const MGSelect:FC<MGSelectProps> = (props)=> {
         selectOptions,
         style,
         showName = 'name',
+        onSelect,
+        showSearch = true,
+        placeholder = '请选择',
         ...restProps
     } = props;
     
     const getChildren = () => {
-        console.log("***3");
         if(selectOptions && selectOptions.length > 0) {
             return selectOptions?.map(item => {
                 return <Option value={item.id} key={item.id}>{item[showName]}</Option>
@@ -26,11 +28,19 @@ const MGSelect:FC<MGSelectProps> = (props)=> {
             return <li className="wg-select-dropdown-item no-data"><span>暂无数据</span></li> 
         }
     }
+    const selectEvent = (val:string|number, option:object) => {
+        if(onSelect) {
+            // onSelect(val, option)
+            let row = selectOptions?.find(item => item.id === val);
+            onSelect(val, row || option)
+        }
+    }
     
     return (
         <Select
             showSearch
             style = {{...{border: '0px', boxShadow: '0px 0px 0px #fff'}, ...style}}
+            onSelect={selectEvent}
             {...restProps}
         >
            {getChildren()}

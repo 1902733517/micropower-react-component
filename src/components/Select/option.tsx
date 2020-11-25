@@ -21,8 +21,17 @@ export const Option = forwardRef<HTMLLIElement, OptionProps>((props, ref) => {
             context.onClick(value, {value,  children})
         }
     }
+    const getChildren = () => {
+        if(context.romote) {
+            return (children && typeof(children) == 'string') ?  <li className={classes} onClick={clickEvent}><span>{children}</span></li>  : <></>
+        } else {
+            return (children && typeof(children) == 'string') ? (children.indexOf(context.search as string)>-1 ? <li className={classes} onClick={clickEvent}><span>{children}</span></li>  : <></>) : <></>
+        }
+    }
     return (
-        (children && typeof(children) == 'string') ? (children.indexOf(context.search as string)>-1 ? <li className={classes} onClick={clickEvent}><span>{children}</span></li>  : <></>) : <></>
+        <>
+            {getChildren()}
+        </>
     )
 })
 
