@@ -82,9 +82,7 @@ const Select:FC<SelectProps> = (props) => {
         if(value!==undefined && value!==null) {
             let a  = children as Array<any>
             if(!(a instanceof Array)) {
-                // valTextRef.current = value;
-                // setValText(value);
-                // setPlaceholderVal('');
+                
             } else {
                 let row = a.find((item:any) => item.props.value === value )
                 if(row && typeof(row.props.children) === 'string') {
@@ -93,17 +91,29 @@ const Select:FC<SelectProps> = (props) => {
                     setPlaceholderVal(valTextRef.current.toString());
                     isSelect.current = true;
                 }
-                // if(!row) {
-                //     console.log(value, children)
-                //     valTextRef.current = value;
-                //     setValText(value);
-                //     setPlaceholderVal('');
-                // }
             }
             
         }
         triggerDown();
-    }, [value, children])
+    }, [children])
+
+    useEffect(()=>{  //值切换时， 下拉数据不匹配
+        let a  = children as Array<any>
+        if(a instanceof Array) {
+            let row = a.find((item:any) => item.props.value === value)
+            if(!row) {
+                setValText('');
+                setPlaceholderVal('');
+                isSelect.current = false;
+            }
+        } else {
+            let setValue = (value === undefined || value === null) ? "" : (value=='0' ? "" : value.toString());
+            setValText(setValue);
+            setPlaceholderVal(setValue);
+            isSelect.current = false;
+            setSelectVal('');
+        }
+    }, [value])
     useEffect(()=>{
         if(!romote) {
             if(downRef.current) {

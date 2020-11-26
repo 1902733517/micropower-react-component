@@ -43,7 +43,7 @@ const MGSelect:FC<MGSelectProps> = (props)=> {
             onSelect={selectEvent}
             {...restProps}
         >
-           {getChildren()}
+            {getChildren()}
         </Select>
     )
 }   

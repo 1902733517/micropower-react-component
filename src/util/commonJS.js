@@ -124,6 +124,11 @@ commonJS.dateFormatSub =  () => {
 }
 
 
+//合并两个json
+commonJS.merge2Json = function (json1, json2) {
+    return JSON.parse((JSON.stringify(json1)+JSON.stringify(json2)).replace(/}{/,','));
+}
+
 React.$commonJS = commonJS;
 export default commonJS;
 

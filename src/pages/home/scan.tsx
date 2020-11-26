@@ -1,4 +1,4 @@
-import React,{ useState, ChangeEvent, useRef, useEffect} from 'react'
+import React,{ useState, ChangeEvent, useRef, useEffect, FC} from 'react'
 import './scan.scss';
 import MGSelect from '../../components/MGSelect';
 import { Switch , Button, WhiteSpace} from 'antd-mobile';
@@ -6,7 +6,7 @@ import '../../util/commonJS'
 import storage from '../../util/storage';
 import commonJS from '../../util/commonJS';
 
-function Scan(props:any) {
+const Scan:FC = (props) => {
     const [invoiceData, setInvoiceData] = useState({
         companyId: storage.getCompanyId(),
         organId: storage.getOrganId(),//财务(法人)组织名称
@@ -18,7 +18,7 @@ function Scan(props:any) {
         departmentId: '',
         departmentName: '',
         departmentNo: '',
-        projectId: 0,
+        projectId: "",
         projectNo: "",
         projectName: "",
         projectManageType: "",
@@ -51,7 +51,9 @@ function Scan(props:any) {
     const projectVal = useRef("");
     const [organList] = useState<Array<any>>(getOrganList());
     const [projectList, setProjectList] = useState<Array<any>>([]);
-    const [contractList, setContractList] = useState<Array<any>>([])
+    const [contractList, setContractList] = useState<Array<any>>([]);
+    const [departmentList, setDepartmentList] = useState<Array<any>>([]);
+    const [purchaseList, setPurchaseList] = useState<Array<any>>([]);
     const searchEvent = (val: string) => {
         projectVal.current = val;
         romoteMethod();
@@ -74,22 +76,163 @@ function Scan(props:any) {
         })
     }
     const selectOrgan = (val:string|number) =>  {
+        setProjectList([]);
+        setPurchaseList([]);
         setInvoiceData((obj)=>{return Object.assign({}, obj, {
             organId: val, 
             projectId: 0,
             projectNo: "",
             projectName: "",
+            settlementSupplierId: 0,
+            settlementSupplierName: '',
         }); });
-        setProjectList([]);
+        const row = organList.find(item => item.id == invoiceData.organId);
+        if(row) {
+            setInvoiceData((obj)=>{return Object.assign({}, obj, {
+                organName: row.organName,
+                taxName: row.invoiceName,
+                taxNo: row.organTaxNo,
+                projectId:'',
+                projectNo: '',
+                projectName: '',
+                contractId: '',
+                contractNo: "",
+                contractName: "",
+                projectPerformanceUserId: '',
+                projectPerformanceUserName: '',
+                projectManageType: "",
+                projectLevied:'',
+            }); });
+            
+            if(storage.getModuleType() == '1') {
+                setInvoiceData((obj)=>{return Object.assign({}, obj, {
+                    departmentId: '',
+                    departmentName: '',
+                    departmentNo: '',
+                }); });
+            }
+            getDepartmentList();
+            setContractList([])
+        }
     }
 
-    const selectProject = (val:string|number, option: any) => {
+
+    const selectProject = (val:string|number, row: any) => {
         setInvoiceData((obj)=>{return Object.assign({}, obj, {
-            projectId: option.id,
-            projectNo: option.no,
-            projectName: option.name,
+            projectId: val,
+            projectManageType: -1,
+            projectLevied: -1,
+            projectPerformanceUserName: "",
+            projectPerformanceUserId: "",
+            settlementSupplierId: "",
+            settlementSupplierName: "",
         }); });
+        setPurchaseList([]);
+        getContractList(val);
+        if(row!=null && row != undefined) {
+            setInvoiceData((obj)=>{return Object.assign({}, obj, {
+                projectName: row.name,
+                projectNo: row.no,
+                projectManageType: row.manageType,
+                projectLevied: row.levied,
+                contractId: 0,
+                contractNo: "",
+                contractName: "",
+            }); });
+
+            
+            if(row.manageType=='1'){
+                setInvoiceData((obj)=>{return Object.assign({}, obj, {
+                    projectPerformanceUserName: row.performanceName,
+                    projectPerformanceUserId: row.performanceId,
+                }); });
+
+            }else{
+                setInvoiceData((obj)=>{return Object.assign({}, obj, {
+                    projectPerformanceUserName: "",
+                    projectPerformanceUserId: 0,
+                }); });
+            }
+        }
     }
+    const getContractList = (projectId:string | number) => {
+        var data = {
+            projectId: projectId,  
+            companyID: invoiceData.companyId,
+            companyId: invoiceData.companyId,
+            organID: invoiceData.organId,
+            organId: invoiceData.organId,
+            byUserID: storage.getUserId(),
+            byUserId: storage.getUserId(), 
+            organAuthorize: storage.getOrganAuthorize(), 
+            departmentAuthorize: storage.getDepartmentAuthorize(), 
+            otherSearch: [{name: "apply", type: "brace", expression: "in", value: "1,9"}]
+        }
+        commonJS.post('contract/v1/getOutcontractList?pageNum=1&pageSize=500', data, function (res:any) {
+            if(res.code == 200) {
+                setContractList(res.data.records);
+            }
+        })
+    }
+
+    const selectContract = (contractId:string|number) => {
+        setPurchaseList([]);
+        setInvoiceData((obj)=>{return Object.assign({}, obj, {
+            settlementSupplierId: 0,
+            settlementSupplierName: "",
+        }); });
+
+        const row = contractList.find(item => item.id == contractId);
+        if(row!==null && row !== undefined) { 
+            setInvoiceData((obj)=>{return Object.assign({}, obj, {
+                contractNo: row.no,
+                contractName: row.name,
+            }); });
+            if(row.businessId) {
+                setPurchaseList([{id: row.businessId, name: row.businessName}]);
+            }
+            setInvoiceData((obj)=>{return Object.assign({}, obj, {
+                settlementSupplierId: row.businessId,
+                settlementSupplierName: row.businessName,
+            }); });
+        }
+    }
+
+    const getDepartmentList = () => {
+        // invoiceData.departmentId = '';
+        // invoiceData.departmentName = '';
+        // invoiceData.departmentNo = '';
+        // if(localStorageUtils.getUser().dataDepartmentAuthority == '1') {
+        //     let list = this.$localStorageUtils.getDepartmentList();
+        //     if(list.length > 0) {
+        //         this.departmentList = list.filter(item => item.organID == this.invoiceData.organId);
+        //     }
+        // } else {
+        //     var that = this;
+        //     this.$serverUtils.getDepartmentListByOrganID(this, {byUserID: this.$localStorageUtils.getUserId(), companyID: this.invoiceData.companyId,organID: this.invoiceData.organId}, 'departmentList', null, true);
+        // }
+        // this.checkDefault();
+        
+    }
+
+    // checkDefault () {
+    //     let row = this.$localStorageUtils.getUser().organList.find(item => item.defaultd == '1');
+    //     let defaultOrganId = '';          //默认组织
+    //     let defaultDepartmentId = this.$localStorageUtils.getDepartmentId();   //默认部门
+    //     if(row) {
+    //         defaultOrganId = row.id;
+    //     }
+        
+    //     if(defaultOrganId != this.invoiceData.organId) {
+    //         return;
+    //     }
+    //     if(this.departmentList.findIndex(item => item.id == defaultDepartmentId) === -1) {
+    //         this.departmentList.push({id: this.$localStorageUtils.getDepartmentId(), name:  this.$localStorageUtils.getDepartmentName(), code: ''})
+    //     }
+    //     this.invoiceData.departmentId = this.$localStorageUtils.getDepartmentId();
+    //     this.invoiceData.departmentName = this.$localStorageUtils.getDepartmentName();
+    // },
+
     return (
         <div className="scan">
             <div className="box">
@@ -120,13 +263,15 @@ function Scan(props:any) {
                     <MGSelect
                         value={invoiceData.contractId}
                         selectOptions={contractList}
+                        onSelect={selectContract}
                     >
                     </MGSelect>
                 </div>
                 <div className="selectGroup">
                     <label>部门名称</label>
                     <MGSelect
-                        selectOptions={list}
+                        showSearch
+                        selectOptions={departmentList}
                     >
                     </MGSelect>
                 </div>
@@ -142,7 +287,7 @@ function Scan(props:any) {
                     <label>结算对象</label>
                     <MGSelect
                         showSearch
-                        selectOptions={list}
+                        selectOptions={purchaseList}
                     >
                     </MGSelect>
                 </div> 

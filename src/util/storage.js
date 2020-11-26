@@ -120,6 +120,14 @@ storage.getOrganTaxNo = function () {
     return organ.organTaxNo;
 }
 
+//获取版本 （1 基础版 2 项目版本）
+storage.getModuleType = function () {
+    let user = storage.getUser();
+    if(user == null){
+        return ''
+    }
+    return user.moduleType;
+}
 
 export function getToken () {
     return  localStorage.getItem("token") || ''
