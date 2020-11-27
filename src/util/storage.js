@@ -99,6 +99,35 @@ storage.invoiceName = function () {
 }
 
 
+//获取部门id
+storage.getDepartmentId = function () {
+    var user = storage.getUser();
+    if(user == null){
+        return ''
+    }
+    return user.departmentID;
+}
+
+//获取部门name
+storage.getDepartmentName = function () {
+    var user = storage.getUser();
+    if(user == null){
+        return ''
+    }
+    return user.departmentName;
+}
+
+
+//获取部门组
+storage.getDepartmentList = function () {
+    var user = storage.getUser();
+    if(user == null){
+        return ''
+    }
+    return user.departmentList;
+}
+
+
 
 
 

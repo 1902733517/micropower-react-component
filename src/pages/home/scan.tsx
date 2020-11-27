@@ -1,10 +1,12 @@
 import React,{ useState, ChangeEvent, useRef, useEffect, FC} from 'react'
 import './scan.scss';
 import MGSelect from '../../components/MGSelect';
-import { Switch , Button, WhiteSpace} from 'antd-mobile';
+import { Switch , Button, WhiteSpace, DatePicker, List} from 'antd-mobile';
 import '../../util/commonJS'
 import storage from '../../util/storage';
 import commonJS from '../../util/commonJS';
+import moment from 'moment'
+
 
 const Scan:FC = (props) => {
     const [invoiceData, setInvoiceData] = useState({
@@ -13,7 +15,7 @@ const Scan:FC = (props) => {
         taxName:  storage.invoiceName(), //所属组织
         operationId: storage.getUserId(),
         operationName: storage.getUserName(),
-        financeTime: commonJS.dateFormatSub(),
+        financeTime: new Date(), //commonJS.dateFormatSub()
         taxNo: storage.getOrganTaxNo(),
         departmentId: '',
         departmentName: '',
@@ -52,12 +54,15 @@ const Scan:FC = (props) => {
     const [organList] = useState<Array<any>>(getOrganList());
     const [projectList, setProjectList] = useState<Array<any>>([]);
     const [contractList, setContractList] = useState<Array<any>>([]);
-    const [departmentList, setDepartmentList] = useState<Array<any>>([]);
+    const [departmentList, setDepartmentList] = useState<Array<any>>();
     const [purchaseList, setPurchaseList] = useState<Array<any>>([]);
     const searchEvent = (val: string) => {
         projectVal.current = val;
         romoteMethod();
     }
+    useEffect(()=>{
+        getDepartmentList();
+    }, [])
     const romoteMethod = () => {
         let query = {
             search:  projectVal.current, 
@@ -199,40 +204,53 @@ const Scan:FC = (props) => {
     }
 
     const getDepartmentList = () => {
-        // invoiceData.departmentId = '';
-        // invoiceData.departmentName = '';
-        // invoiceData.departmentNo = '';
-        // if(localStorageUtils.getUser().dataDepartmentAuthority == '1') {
-        //     let list = this.$localStorageUtils.getDepartmentList();
-        //     if(list.length > 0) {
-        //         this.departmentList = list.filter(item => item.organID == this.invoiceData.organId);
-        //     }
-        // } else {
-        //     var that = this;
-        //     this.$serverUtils.getDepartmentListByOrganID(this, {byUserID: this.$localStorageUtils.getUserId(), companyID: this.invoiceData.companyId,organID: this.invoiceData.organId}, 'departmentList', null, true);
-        // }
-        // this.checkDefault();
-        
+        setInvoiceData((obj)=>{return Object.assign({}, obj, {
+            departmentId: 0,
+            departmentName: '',
+            departmentNo: ''
+        }); });
+
+        if(storage.getUser().dataDepartmentAuthority == '1') {
+            let list = storage.getDepartmentList();
+            if(list.length > 0) {
+                setDepartmentList(list.filter((item:any) => item.organID == invoiceData.organId)) 
+            }
+        } else {
+            let query = {
+                byUserID: storage.getUserId(), 
+                companyID: invoiceData.companyId,
+                organID: invoiceData.organId
+            }
+            commonJS.post('department/v1/getDepartmentList?pageNum=1&pageSize=500', query, function (res:any) {
+                if(res.code == 200) {
+                    setDepartmentList(res.data.list);
+                }
+            })
+        }
+        checkDefault();
     }
 
-    // checkDefault () {
-    //     let row = this.$localStorageUtils.getUser().organList.find(item => item.defaultd == '1');
-    //     let defaultOrganId = '';          //默认组织
-    //     let defaultDepartmentId = this.$localStorageUtils.getDepartmentId();   //默认部门
-    //     if(row) {
-    //         defaultOrganId = row.id;
-    //     }
+    const checkDefault  = () => {
+        let row = storage.getUser().organList.find((item:any) => item.defaultd == '1');
+        let defaultOrganId = '';          //默认组织
+        let defaultDepartmentId = storage.getDepartmentId();   //默认部门
+        if(row) {
+            defaultOrganId = row.id;
+        }
         
-    //     if(defaultOrganId != this.invoiceData.organId) {
-    //         return;
-    //     }
-    //     if(this.departmentList.findIndex(item => item.id == defaultDepartmentId) === -1) {
-    //         this.departmentList.push({id: this.$localStorageUtils.getDepartmentId(), name:  this.$localStorageUtils.getDepartmentName(), code: ''})
-    //     }
-    //     this.invoiceData.departmentId = this.$localStorageUtils.getDepartmentId();
-    //     this.invoiceData.departmentName = this.$localStorageUtils.getDepartmentName();
-    // },
+        if(defaultOrganId != invoiceData.organId) {
+            return;
+        }
+        if(departmentList?.findIndex(item => item.id == defaultDepartmentId) === -1) {
+            departmentList.push({id: storage.getDepartmentId(), name:  storage.getDepartmentName(), code: ''})
+        }
+        invoiceData.departmentId = storage.getDepartmentId();
+        invoiceData.departmentName = storage.getDepartmentName();
+    }
 
+    const dateFormat = (val:Date) => {
+        return moment(val).format("YYYY-MM-DD");
+    }
     return (
         <div className="scan">
             <div className="box">
@@ -277,11 +295,18 @@ const Scan:FC = (props) => {
                 </div>
                 <div className="selectGroup">
                     <label>财务日期</label>
-                    <MGSelect
-                        showSearch
-                        selectOptions={list}
+                    <DatePicker
+                        mode="date"
+                        title="选择日期"
+                        extra="Optional"
+                        // value={invoiceData.financeTime}
+                        format="YYYY-MM-DD"
+                        onChange={date => {console.log(dateFormat(date)); setInvoiceData((obj)=>{return Object.assign({}, obj, {
+                            financeTime: dateFormat(date),
+                        }); });}}
                     >
-                    </MGSelect>
+                        <p style={{width: '100%', height: '40px'}}></p>
+                    </DatePicker>
                 </div>
                 <div className="selectGroup">
                     <label>结算对象</label>

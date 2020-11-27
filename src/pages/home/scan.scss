@@ -39,3 +39,7 @@
 .am-switch input[type="checkbox"]:checked + .checkbox:after {
     transform: translateX(16px);
 }
+
+.date-picker-list .am-list-item .am-list-line .am-list-extra {
+    flex-basis: initial;
+  }

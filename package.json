@@ -21,6 +21,7 @@
     "antd-mobile": "^2.3.4",
     "axios": "^0.21.0",
     "classnames": "^2.2.6",
+    "moment": "^2.29.1",
     "node-sass": "^4.14.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
@@ -55,5 +56,14 @@
   },
   "devDependencies": {
     "react-router-dom": "^5.2.0"
-  }
+  },
+  "plugins": [
+    [
+      "import",
+      {
+        "libraryName": "antd-mobile",
+        "style": "css"
+      }
+    ]
+  ]
 }
