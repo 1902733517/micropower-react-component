@@ -1,10 +1,9 @@
 import React from 'react'
 import { Carousel, WingBlank } from 'antd-mobile';
-// import '../../../src/style/antDesign.scss'
-import img1 from '../../../src/assets/images/home/wx1.png'
-import img2 from '../../../src/assets/images/home/wx2.png'
-import img3 from '../../../src/assets/images/home/wx3.png'
-import './homePage.scss'
+import img1 from '../../../../src/assets/images/home/wx1.png'
+import img2 from '../../../../src/assets/images/home/wx2.png'
+import img3 from '../../../../src/assets/images/home/wx3.png'
+import './index.scss'
 class HomePage extends React.Component{
     state = {
         data: ['1', '2', '3'],

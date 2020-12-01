@@ -21,10 +21,10 @@
     border-bottom: 1px solid #ddd;
     height: 40px;
     align-items: center;
-    label {
-        width: 90px;
+    &>label {
+        width: 70px;
     }
-    div {
+    &>div {
         flex: 1;
     }
 }
@@ -42,4 +42,8 @@
 
 .date-picker-list .am-list-item .am-list-line .am-list-extra {
     flex-basis: initial;
-  }
+}
+.am-switch .checkbox:before {
+    width: 36px!important;
+    height: 21px!important;
+}

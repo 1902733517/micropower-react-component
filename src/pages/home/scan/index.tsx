@@ -1,12 +1,11 @@
 import React,{ useState, ChangeEvent, useRef, useEffect, FC} from 'react'
-import './scan.scss';
-import MGSelect from '../../components/MGSelect';
+import './index.scss';
+import MGSelect from '../../../components/MGSelect';
 import { Switch , Button, WhiteSpace, DatePicker, List} from 'antd-mobile';
-import '../../util/commonJS'
-import storage from '../../util/storage';
-import commonJS from '../../util/commonJS';
-import moment from 'moment'
-
+import storage from '../../../util/storage';
+import commonJS from '../../../util/commonJS';
+import moment from 'moment';
+import { useHistory }  from "react-router-dom";
 
 const Scan:FC = (props) => {
     const [invoiceData, setInvoiceData] = useState({
@@ -15,7 +14,7 @@ const Scan:FC = (props) => {
         taxName:  storage.invoiceName(), //所属组织
         operationId: storage.getUserId(),
         operationName: storage.getUserName(),
-        financeTime: new Date(), //commonJS.dateFormatSub()
+        financeTime: commonJS.dateFormatSub(),
         taxNo: storage.getOrganTaxNo(),
         departmentId: '',
         departmentName: '',
@@ -49,18 +48,38 @@ const Scan:FC = (props) => {
             return []
         }
     }
-    const [list, setList] = useState([{id:'1', name: '语文书'},{id:'2', name: '数学'},{id:'3', name: '英语'}, {id: '4', name: '语文'}]);
     const projectVal = useRef("");
     const [organList] = useState<Array<any>>(getOrganList());
     const [projectList, setProjectList] = useState<Array<any>>([]);
     const [contractList, setContractList] = useState<Array<any>>([]);
     const [departmentList, setDepartmentList] = useState<Array<any>>();
     const [purchaseList, setPurchaseList] = useState<Array<any>>([]);
+    const [continuous, setContinuous] = useState<boolean>(true); //连续扫描
+    const [pay, setPay] = useState<boolean>(); //现金垫付
+    let wx = require('weixin-js-sdk');
+    let history = useHistory();
     const searchEvent = (val: string) => {
         projectVal.current = val;
         romoteMethod();
     }
     useEffect(()=>{
+        commonJS.get("user/v1/getJsapiTicket?url=" + encodeURIComponent(window.location.href.split('#')[0]), function(res:any) {
+            wx.config({
+                //debug: true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                appId: res.data.appId, // 必填，公众号的唯一标识
+                timestamp: res.data.timestamp, // 必填，生成签名的时间戳
+                nonceStr: res.data.nonceStr, // 必填，生成签名的随机串
+                signature: res.data.signature, // 必填，签名
+                jsApiList: ['scanQRCode'] // 必填，需要使用的JS接口列表
+            })
+            wx.error(function(res:any){
+                // that.$toast.message("初始化微信信息失败，当前二维码扫描无法使用,请尽快联系管理员！");
+                commonJS.toast("初始化微信信息失败，当前二维码扫描无法使用,请刷新重试")
+            })   
+            wx.ready(function(){
+
+            })
+        })
         getDepartmentList();
     }, [])
     const romoteMethod = () => {
@@ -244,15 +263,87 @@ const Scan:FC = (props) => {
         if(departmentList?.findIndex(item => item.id == defaultDepartmentId) === -1) {
             departmentList.push({id: storage.getDepartmentId(), name:  storage.getDepartmentName(), code: ''})
         }
-        invoiceData.departmentId = storage.getDepartmentId();
-        invoiceData.departmentName = storage.getDepartmentName();
+        setInvoiceData((obj)=>{return Object.assign({}, obj, {
+            departmentId: storage.getDepartmentId(),
+            departmentName: storage.getDepartmentName(),
+        }); });
+    }
+
+    const changeTime = (date:any) => {
+        setInvoiceData((obj)=>{return Object.assign({}, obj, {
+            financeTime: dateFormat(date)
+        }); });
     }
 
     const dateFormat = (val:Date) => {
         return moment(val).format("YYYY-MM-DD");
     }
+
+    const scanClick = () => {
+            wx.scanQRCode({
+            needResult: 1, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
+            scanType: ["qrCode", "barCode"], // 可以指定扫二维码还是一维码，默认二者都有
+            success: function(res:any) {
+                var arr = res.resultStr.split(','); 
+                if(arr.length <= 1) {
+                    commonJS.toast("虚拟机");
+                    return;
+                }
+                setInvoiceData((obj:any)=>{
+                    return Object.assign({}, obj, {
+                        invoiceCode: arr[2],
+                        invoiceNum: arr[3],
+                        invoiceDate: arr[5].slice(0,8),
+                        taget: arr[6].length > 6 ? arr[6].slice(-6) : arr[4],
+                        special: arr[6].length > 6 ? 0 : 1,
+                    })
+                })  
+                
+                let queryData = JSON.parse(JSON.stringify(invoiceData));
+                if(queryData.departmentId == '') {
+                    queryData.departmentId = 0;
+                }
+                if(!(invoiceData.taxName[0] == '[' && invoiceData.taxName[invoiceData.taxName.length - 1] == (']'))) {
+                    commonJS.toast('当前组织税号信息不完整，请前往PC端补全税号');
+                    return;
+                }
+                // that.$Loading('正在查验');
+                commonJS.post("/invoice/v1/qrInvoiceIn?userName="+storage.getUserName(), queryData,function(res:any){
+                    // that.data = queryData;
+                    if(res.code == 200) {
+                        commonJS.toast(res.message);
+                    }
+                    //操作日志
+                    // that.$commonJS.saveUserlog(that, '二维码识别', "发票代码："+queryData.invoiceCode+"   发票号码："+queryData.invoiceNum+"   查询结果："+res.message, '发票查验');
+                        /**  否连续扫描的情况将进行详情也展示 */
+                    if(!continuous){
+                        history.push('/invoiceDetails')
+                        // that.$router.push({path: '/invoiceDetails', query: {fpdm: arr[2], fphm: arr[3]}})
+                    }
+                })
+            },
+            fail: function (res:any){
+                alert(JSON.stringify(res))
+            },
+            error:function(res:any){
+                alert(JSON.stringify(res))
+            }
+        });
+    }
+
+    const upload = () => {
+        document.getElementById('file')?.click();
+    }
+    const changeFile = (e: ChangeEvent<HTMLInputElement>) => {
+        let that = this; 
+        if(e.target.files) {
+            let file = e.target.files[0];
+        }
+        e.target.value = '';
+    }
     return (
         <div className="scan">
+            <input  type="file"  id="file" accept="image/*"  style={{display: 'none'}} onChange={changeFile} />
             <div className="box">
                 <div className="selectGroup">
                     <label>财务组织</label>
@@ -289,6 +380,7 @@ const Scan:FC = (props) => {
                     <label>部门名称</label>
                     <MGSelect
                         showSearch
+                        value={invoiceData.departmentId}
                         selectOptions={departmentList}
                     >
                     </MGSelect>
@@ -298,14 +390,12 @@ const Scan:FC = (props) => {
                     <DatePicker
                         mode="date"
                         title="选择日期"
-                        extra="Optional"
-                        // value={invoiceData.financeTime}
+                        extra="请选择"
+                        value={new Date(invoiceData.financeTime)}
                         format="YYYY-MM-DD"
-                        onChange={date => {console.log(dateFormat(date)); setInvoiceData((obj)=>{return Object.assign({}, obj, {
-                            financeTime: dateFormat(date),
-                        }); });}}
+                        onChange={changeTime}
                     >
-                        <p style={{width: '100%', height: '40px'}}></p>
+                        <p style={{width: '100%', height: '40px', lineHeight: '40px', paddingLeft: '10px'}}>{invoiceData.financeTime}</p>
                     </DatePicker>
                 </div>
                 <div className="selectGroup">
@@ -318,29 +408,36 @@ const Scan:FC = (props) => {
                 </div> 
                 <div className="selectGroup" style={{border: '0px'}}>
                     <span style={{paddingRight: '10px', }}>连续扫描</span>
-                    <Switch
-                        checked={true}
-                        color="#108EE9"
-                        onChange={() => {
-                            
-                        }}
-                    />
-                    <span style={{paddingRight: '10px', }}>现金垫付</span>
-                    <Switch
-                        checked={true}
-                        color="#108EE9"
-                        onChange={() => {
-                            
-                        }}
-                    />
+                    <span>
+                        <Switch
+                            checked={continuous ? true: false}
+                            color="#108EE9"
+                            onChange={(val) => {
+                            setContinuous(val); 
+                            }}
+                        />
+                    </span>
+                    
+                    <span style={{paddingRight: '10px', paddingLeft: '50px' }}>现金垫付</span>
+                    <span>
+                        <Switch
+                            checked={invoiceData.pay ? true : false}
+                            color="#108EE9"
+                            onChange={(val) => {
+                                setInvoiceData((obj:any)=>{
+                                    return Object.assign({}, obj, {pay: val ? 1 : 0})
+                                })
+                            }}
+                        />
+                    </span>
                 </div>
             </div>
             <div style={{padding: '0px 10px'}}>
                 <WhiteSpace size="lg"/>
                 <WhiteSpace size="lg"/>
-                <Button type="primary" size="small" onClick={()=>{console.log(organList)}} >二维码扫描</Button>
+                <Button type="primary" size="small" onClick={scanClick} >二维码扫描</Button>
                 <WhiteSpace />
-                <Button style={{backgroundColor: '#3CB371', color: '#fff'}} size="small">拍照识别</Button>
+                <Button style={{backgroundColor: '#3CB371', color: '#fff'}} size="small" onClick={upload}>拍照识别</Button>
             </div>
             
         </div>

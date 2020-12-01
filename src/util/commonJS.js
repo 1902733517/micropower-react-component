@@ -1,5 +1,6 @@
 import  request from './request'
 import React from 'react'
+import { Toast } from 'antd-mobile';
 
 let commonJS = {
 
@@ -128,6 +129,13 @@ commonJS.dateFormatSub =  () => {
 commonJS.merge2Json = function (json1, json2) {
     return JSON.parse((JSON.stringify(json1)+JSON.stringify(json2)).replace(/}{/,','));
 }
+
+
+//消息弹窗
+commonJS.toast = function (message) {
+    Toast.info(message, 2)
+}
+
 
 React.$commonJS = commonJS;
 export default commonJS;
