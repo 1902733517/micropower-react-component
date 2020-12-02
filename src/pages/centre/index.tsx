@@ -5,6 +5,7 @@ import commonJS from '../../util/commonJS'
 import storage from '../../util/storage'
 import {routes} from '../../router'
 import { useHistory } from 'react-router-dom';
+import asyncComponent from '../../asyncComponent';
 
 const Centre:FC = (props) => {
     const [navList, setNavList] = useState<Array<any>>([]);
@@ -15,13 +16,13 @@ const Centre:FC = (props) => {
                 setNavList(res.data);
                 setcurrent(0);
                 routes.concat(addRoutes(res.data));
+                console.log(routes.concat(addRoutes(res.data)))
                 // { path: '/login', component: Login , routes: [],}
                 // routes.concat()
             }
         })
     }, [])
     const addRoutes = (list:Array<any>) => {
-        console.log(list);
         const addRouteList:Array<any> = [];
         list.forEach(item => {
             let {
@@ -31,13 +32,14 @@ const Centre:FC = (props) => {
                 children,
                 param
             } = item
+            console.log(component)
             const oRouter = {
                 id,
-                path,
+                path:  component == 'Layout' ? '/white' : '/white'+ path,
                 routes: children === undefined ? [] : addRoutes(children),
+                component: component == 'Layout' ?  asyncComponent(()=> import('../../pages/white/index')): asyncComponent(()=> import('../../pages/'+component+'/index')),
                 param,
             }
-            component === 'Layout' ? "" :  (oRouter as any).component =  import('../'+component+'/index.tsx');
             addRouteList.push(oRouter);
         })
         return addRouteList;
