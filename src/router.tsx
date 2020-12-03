@@ -9,19 +9,23 @@ import { renderRoutes } from 'react-router-config';
 import asyncComponent from './asyncComponent'
 
 export const routes = [
-  { path: '/login', component: asyncComponent(() => import('../src/pages/login/index')), routes: []},
+  { path: '/', component: Home, exact:true, routes: []},  //exact 严格匹配
+  { path: '/login', component: asyncComponent(() => import('./pages/login/index')), routes: []},
   { path: '/auth', component:  auth, routes: [],},
   { path: '/scan', component: scan , routes: [],},
   { path: '/invoiceDetails', component: invoiceDetails},
   { path: '/home', component: Home, routes: []},
+  // { path: '*', component: Home, routes: [] },
   {
-    path: '/white', component: asyncComponent(()=> import('../src/pages/white/index')), routes: [
-      {path: '/white/test',  component: asyncComponent(() => import('../src/pages/conbudget/conbudgetapplyList/index'))}
+    path: '/white', component: asyncComponent(()=> import('./pages/white/index')), routes: [
+      {name: 'test', path: '/white/test',  component: asyncComponent(() => import('./pages/conbudget/conbudgetapplyList/index'))}
     ]
   }
 ]
 
 const Router = () => (
+  // basename 应用程序部署在服务器的子目录
+  // <BrowserRouter basename='//micropower-app'></BrowserRouter>
   <BrowserRouter>{renderRoutes(routes)}</BrowserRouter>
 )
 

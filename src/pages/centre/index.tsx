@@ -1,4 +1,3 @@
-import { strict } from 'assert';
 import React, { FC, useEffect, useState } from 'react'
 import "./index.scss"
 import commonJS from '../../util/commonJS'
@@ -32,7 +31,6 @@ const Centre:FC = (props) => {
                 children,
                 param
             } = item
-            console.log(component)
             const oRouter = {
                 id,
                 path:  component == 'Layout' ? '/white' : '/white'+ path,
