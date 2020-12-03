@@ -2,8 +2,8 @@ import React from 'react'
 import { Toast } from 'antd-mobile';
 import { TabBar } from 'antd-mobile';
 import '../../../src/styles/antDesign.scss'
-import HomePage from './homePage'
-import Centre from '../centre/index'
+import HomePage from './homePage/index'
+import Centre from '../centre/index.tsx'
 import './index.scss'
 
 class TabBarExample  extends React.Component{
@@ -45,7 +45,6 @@ class TabBarExample  extends React.Component{
     }
 
     render() {
-      console.log(this.state.iconList)
         return (
             <div style={this.state.fullScreen ? { position: 'fixed', height: '100%', width: '100%', top: 0 } : { height: '100vh' }}>
               <TabBar

@@ -3,6 +3,7 @@ import './App.css';
 import Input from './components/Input';
 import Icon from './components/Icon';
 import Select from './components/Select';
+import Router from './router'
 // import {Select} from 'antd';
 // import {Select} from './index'
 
@@ -24,13 +25,12 @@ function App() {
     console.log(val2)
   }
   const selectEvent = (val1:any, val2:any) => {
-    console.log("*****");
     console.log(val1);
     console.log(val2);
   }
   return (
     <div className="App">
-      <div style={{width: '300px', margin: '0 auto'}}>
+      {/* <div style={{width: '300px', margin: '0 auto'}}>
         <Input 
           placeholder="size"
           disabled
@@ -63,16 +63,10 @@ function App() {
         />
       </div>
       <div style={{width: '300px', margin: '0 auto', marginTop: '30px'}}>
-        {/* <Select showSeach /> */}
       </div>
       <br />
       <br />
       <div style={{width: '500px', margin: '0 auto', marginTop: '30px'}}>
-        {/* <Select showSearch>
-          {options.map((item)=>{
-            return <Select.Option value={item.id}>{item.name}</Select.Option>
-          })}
-        </Select> */}
         <Select
           showSearch
           onSelect={selectEvent}
@@ -83,8 +77,8 @@ function App() {
         </Select>
       </div>
       <div style={{height: '1100px'}}>
-
-      </div>
+      </div> */}
+      <Router />
     </div>
   );
 }
