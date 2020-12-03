@@ -1,32 +1,34 @@
 
-import React, { FC, memo, useEffect } from 'react'
+import React, { FC, memo, useEffect, useState } from 'react'
+import { connect } from 'react-redux'
 import { renderRoutes } from 'react-router-config'
 import { withRouter} from 'react-router-dom'
 import store from '../../redux/store'
-// import {add,reduce}  from '../../redux/reducer'
-import {useSelector,useDispatch} from 'react-redux'
+// import {add,reduce}  from '../../redux/action'
+
+
 const White = (props:any)=>{
-    const count = useSelector((state:any) => state.count.number);
-    const dispatch = useDispatch();
-  
+    const [list, setList] = useState(props.route.routes)
+
     useEffect(() => {
-        console.log('123',count)
-    })
+        setList(store.getState().routerList)
+    }, [])
+    
     
     return (
         <div>
-             <span>{count}</span>
-            {/* <button onClick={() => dispatch(reduce(count))}>-</button>
+            {/* <span>{count}</span>
+            <button onClick={() => dispatch(reduce(count))}>-</button>
             <button onClick={() => dispatch(add(count))}>+</button> */}
+            空白页面
             <div className="content">
                 {
-                    renderRoutes(props.route.routes)
+                    renderRoutes(list)
                 }
             </div>
-           
+        
         </div>
     )
 }
 
-// export default memo(withRouter(white));
-export default White;
+export default memo(withRouter(White));

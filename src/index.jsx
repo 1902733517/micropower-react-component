@@ -7,11 +7,8 @@ import './util/request'
 import './styles/index.scss'
 import 'antd-mobile/dist/antd-mobile.css';
 import Router from './router'
-
-import {createStore} from 'redux'
-import reducer from './redux/reducer'
-const store =createStore(reducer,window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())
-export default store
+import { Provider } from 'react-redux';
+import store from './redux/store'
 
 // ReactDOM.render(
 //   <React.StrictMode>
@@ -20,4 +17,10 @@ export default store
 //   document.getElementById('root')
 // );
 
-ReactDOM.render(<Router />,  document.getElementById('root'))
+const Index = () => (
+    <Provider store={store}>
+       <Router />
+    </Provider>
+)
+
+ReactDOM.render(<Index />,  document.getElementById('root'))

@@ -1,62 +1,32 @@
-// const defaultState={
-//     inputValue:'',
-//     data:[
-//         {
-//             id:1,
-//             content:'这是一个帅哥'
-//         },
-//         {
-//             id:2,
-//             content:'这是一个小哥哥'
-//         },
-//         {
-//             id:3,
-//             content:'这是一个小姐姐'
-//         }
-//     ]
-// }
-// export default (state=defaultState,action)=>{
-//     // reducer只能接收state，不能改变state
-//     if(action.type==='changeInput'){
-//         let newState=JSON.parse(JSON.stringify(state)) //深度拷贝
-//         newState.inputValue=action.value
-        
-//         return newState
-//     }
-//     if(action.type==='ADDITEM'){
-//         let newState=JSON.parse(JSON.stringify(state))
-//         let obj={
-//             id:newState.data.length+1,
-//             content: newState.inputValue
-//         }
-//         newState.data.push(obj)
-//         newState.inputValue=''
-//         return newState
-//     }
-//     if(action.type==='DELETEITEM'){
-//         let newState=JSON.parse(JSON.stringify(state))
-//         let index=newState.data.findIndex(item=>{
-//             return item.id===action.id
-//         })
-//         newState.data.splice(index,1)
-//         return newState
-//     }
-//     return state
-// }
+import { act } from "react-dom/test-utils"
 
+// const init = {
+//     number: 0
+// }
+// const reducer = (state = init, action) => {
+//     switch (action.type) {
+//         case 'INCREMENT':
+//             return {...state, number: state.number+1}
+//         case 'DECREMENT':
+//             return {...state, number: state.number-1}
+//         case 'RESET':
+//             return({...state, number: 0})
+//         default:
+//             return state
+//     }
+// }
 
 const init = {
-    number: 0
+    routerList: []
 }
 
-export default (state = init, action) => {
-    console.log('aqwe',action)
-    switch (action.type) {
-        case 'addCount':
-            return {...state,number : action.count+1}
-        case 'reduceCount':
-            return {...state,number : action.count-1}
+const reducer = (state = init, action) => {
+    switch(action.type) {
+        case 'ADD-ROUTERS': 
+            return {...state, routerList: action.value}
         default:
             return state
     }
 }
+
+export default reducer

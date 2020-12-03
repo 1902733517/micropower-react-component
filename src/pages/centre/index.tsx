@@ -5,8 +5,15 @@ import storage from '../../util/storage'
 import {routes} from '../../router'
 import { useHistory } from 'react-router-dom';
 import asyncComponent from '../../asyncComponent';
-
-const Centre:FC = (props) => {
+import {addRoute} from '../../redux/action'
+import { connect } from 'react-redux';
+function mapStateToProps(state:any) {
+    return {
+      list: state.routerList
+    };
+}
+  
+const Centre:FC = (props:any) => {
     const [navList, setNavList] = useState<Array<any>>([]);
     const [current, setcurrent] = useState<number|"">("");
     useEffect(()=>{
@@ -14,8 +21,8 @@ const Centre:FC = (props) => {
             if(res.code === 200) {
                 setNavList(res.data);
                 setcurrent(0);
-                routes.concat(addRoutes(res.data));
-                console.log(routes.concat(addRoutes(res.data)))
+                let allRoute =  routes.concat(addRoutes(res.data));
+                props.dispatch(addRoute(allRoute))
                 // { path: '/login', component: Login , routes: [],}
                 // routes.concat()
             }
@@ -50,7 +57,7 @@ const Centre:FC = (props) => {
             return(
                 navList[current].children.map((item:any)=>{
                     return (
-                        <div className="rightItem" key={item.id} onClick={() => {console.log("((((", item.path); history.push(item.path)} }>
+                        <div className="rightItem" key={item.id} onClick={() => {console.log("((((", item.path); history.push('/white'+item.path)} }>
                             <div className="icons">
                                 <svg className="icon" aria-hidden={true}>
                                     <use xlinkHref={`#${item.icon.trim()}`}></use>
@@ -146,4 +153,4 @@ const Centre:FC = (props) => {
 //     }
 // }
 
-export default Centre
+export default connect(mapStateToProps)(Centre)

@@ -1,22 +1,7 @@
-export const add = (count) => {
-    return (dispatch) => {
-        (() => {
-            console.log('123',count)
-            dispatch({
-                type : 'addCount',
-                count 
-            })
-        })()
-    }
-}
+export const INCREMENT = "INCREMENT";
+export const DECREMENT = "DECREMENT";
 
-export const reduce = (count) => {
-    return (dispatch) => {
-        (() => {
-            dispatch({
-                type : 'reduceCount',
-                count 
-            })
-        })()
-    }
-}
+//https://www.jianshu.com/p/99d5f3046dd5  redux学习
+export const increment = (val) => ({type: INCREMENT, val})
+export const decrement = () => ({type: DECREMENT})
+export const addRoute = (value) => ({type: 'ADD-ROUTERS', value})
