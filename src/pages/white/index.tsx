@@ -8,13 +8,6 @@ import store from '../../redux/store'
 
 
 const White = (props:any)=>{
-    const [list, setList] = useState(props.route.routes)
-
-    useEffect(() => {
-        setList(store.getState().routerList)
-    }, [])
-    
-    
     return (
         <div>
             {/* <span>{count}</span>
@@ -23,7 +16,7 @@ const White = (props:any)=>{
             空白页面
             <div className="content">
                 {
-                    renderRoutes(list)
+                    renderRoutes(props.route.routes)
                 }
             </div>
         

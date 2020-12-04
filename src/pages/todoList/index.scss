@@ -1,0 +1,70 @@
+.item {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 6px 30px 6px 15px;
+    border-bottom: 1px solid #f5f5f5;
+    position: relative;
+}
+.itemTit{
+    width: 100%;
+    overflow: hidden;
+    height: 22px;
+    line-height: 22px;
+    color: #666666; 
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+
+}
+.item span {
+    text-align: center;
+    overflow: hidden;
+    height: 100%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 16px;
+}
+.icon-next {
+    font-size: 12px;
+}
+.no {
+    text-align: left!important;
+    flex: 5;
+    text-align: left;
+}
+
+.litTit {
+    flex: 3;
+    text-align: right!important;
+    font-size: 16px!important;
+    color: #666;
+}
+.littleTit span {
+    font-size: 14px!important;
+    color: #999;
+}
+.backIcon {
+    position: absolute;
+    right: 10px;
+    height: 52px;
+    line-height: 52px;
+    top:0px;
+}
+.backIcon i {
+    font-size: 14px;
+    color: #666666;
+}
+.am-tabs-horizontal {
+    background-color: #fff;
+}
+.navBox {
+    position: fixed;
+    width: 100%;
+    z-index: 100;
+    top: 0px;
+    background-color: #fff;
+    &>div{
+        width: 100%;
+    }
+}

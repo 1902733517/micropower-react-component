@@ -4,6 +4,7 @@ import { TabBar } from 'antd-mobile';
 import '../../../src/styles/antDesign.scss'
 import HomePage from './homePage/index'
 import Centre from '../centre/index.tsx'
+import TodoList from '../todoList/index'
 import './index.scss'
 
 class TabBarExample  extends React.Component{
@@ -33,9 +34,11 @@ class TabBarExample  extends React.Component{
     renderContent(type) {
         let content = '';
         if(type === 1 || type === undefined) {
-            content = <HomePage history={this.props.history} />
+          content = <HomePage history={this.props.history} />
         } else if(type === 2) {
-            content = <Centre history={this.props.history} />
+          content = <Centre history={this.props.history} />
+        } else if(type === 3) {
+          content = <TodoList history={this.props.history} />
         }
         return (
             <div className="homePage" style={{ backgroundColor: 'white', height: 'calc(100vh - 50px)', textAlign: 'center' }}>

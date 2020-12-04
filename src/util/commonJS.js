@@ -136,6 +136,29 @@ commonJS.toast = function (message) {
     Toast.info(message, 2)
 }
 
+//审批类型
+commonJS.getApplyTypeList=function() {
+    return [
+        { id: 'IN', name: '收入合同' }, 
+        { id: 'OUT', name: '支出合同' },
+        { id: 'PRE', name: '预付款' },
+        { id: 'PLAN', name: '付款计划' },
+        { id: 'PAY', name: '付款审批' },
+        { id: 'REQU', name: '请购单' },
+        { id: 'PURC', name: '采购单' },
+        { id: 'KPSQ', name: '开票申请' },
+        { id: 'TBFK', name: '投标付款' },
+        { id: 'FYYS', name: '费用预算' },
+        { id: 'FYSQ', name: '费用申请' },
+        { id: 'FYYZ', name: '费用预支' },
+        { id: 'FYBX', name: '费用报销' },
+        { id: 'QTFXMFK', name: '其他非项目付款'},
+        { id: 'NMGGZHZ', name: '发放汇总'},
+        { id: 'XM', name: '项目审批'},
+    ];
+}
+
+
 
 React.$commonJS = commonJS;
 export default commonJS;

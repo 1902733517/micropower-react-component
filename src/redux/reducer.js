@@ -22,7 +22,7 @@ const init = {
 
 const reducer = (state = init, action) => {
     switch(action.type) {
-        case 'ADD-ROUTERS': 
+        case 'ADD-ROUTERS':
             return {...state, routerList: action.value}
         default:
             return state

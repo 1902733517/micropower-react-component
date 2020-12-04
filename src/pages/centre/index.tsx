@@ -23,12 +23,10 @@ const Centre:FC = (props:any) => {
                 setcurrent(0);
                 let allRoute =  routes.concat(addRoutes(res.data));
                 props.dispatch(addRoute(allRoute))
-                // { path: '/login', component: Login , routes: [],}
-                // routes.concat()
             }
         })
     }, [])
-    const addRoutes = (list:Array<any>) => {
+    const addRoutes = (list:Array<any>, parentPath?:string) => {
         const addRouteList:Array<any> = [];
         list.forEach(item => {
             let {
@@ -40,8 +38,9 @@ const Centre:FC = (props:any) => {
             } = item
             const oRouter = {
                 id,
-                path:  component == 'Layout' ? '/white' : '/white'+ path,
-                routes: children === undefined ? [] : addRoutes(children),
+                parentPath: parentPath ? parentPath : '',
+                path: parentPath ? parentPath + path : path,
+                routes: children === undefined ? [] : addRoutes(children, path),
                 component: component == 'Layout' ?  asyncComponent(()=> import('../../pages/white/index')): asyncComponent(()=> import('../../pages/'+component+'/index')),
                 param,
             }
@@ -51,13 +50,13 @@ const Centre:FC = (props:any) => {
     }
     let history = useHistory();
     const childrenItem = () => {
-        if(current == '') {
+        if(current === '') {
             return ''
         } else {
             return(
                 navList[current].children.map((item:any)=>{
                     return (
-                        <div className="rightItem" key={item.id} onClick={() => {console.log("((((", item.path); history.push('/white'+item.path)} }>
+                        <div className="rightItem" key={item.id} onClick={() => { history.push(navList[current].path + item.path)} }>
                             <div className="icons">
                                 <svg className="icon" aria-hidden={true}>
                                     <use xlinkHref={`#${item.icon.trim()}`}></use>
@@ -76,7 +75,7 @@ const Centre:FC = (props:any) => {
                 {
                     navList.map((item, index) => {
                         return (
-                            <div className="leftItem"  key={index} onClick={()=>{setcurrent(index)}}>
+                            <div className="leftItem"  key={index} onClick={()=>{setcurrent(index);}}>
                                 {item.title}
                             </div>
                         )
@@ -89,68 +88,5 @@ const Centre:FC = (props:any) => {
         </div>
     )
 }
-
-// class Centre extends React.Component{
-
-//     state = {
-//         navList: [],
-//         current: "", 
-//     }
-
-//     componentDidMount () {
-//         var that = this;
-//         React.$commonJS.get('userinfo/v1/getLeftMenuList?organId='+React.$storage.getOrganId()+'&userId='+React.$storage.getUserId()+"&phone=1", function (res) {
-//             if(res.code === 200) {
-//                 that.setState({
-//                     navList: res.data,
-//                     current: 0,
-//                 })
-//             }
-//         })
-//     }
-
-//     childrenItem () {
-//         if(this.state.current === '') {
-//             return ''
-//         } else {
-//             return(
-//                 this.state.navList[this.state.current].children.map((item)=>{
-//                     return (
-//                         <div className="rightItem" key={item.id}>
-//                             <div className="icons">
-                                
-//                                 <svg className="icon" aria-hidden={true}>
-//                                     <use xlinkHref={`#${item.icon.trim()}`}></use>
-//                                 </svg>
-//                             </div>
-//                             <p>{item.title}</p>
-//                         </div>
-//                     )
-//                 })
-//             )
-//         }
-//     }
-
-//     render () {
-//         return (
-//             <div className="centre">
-//                 <div className="contentLeft">
-//                     {
-//                         this.state.navList.map((item, index) => {
-//                             return (
-//                                 <div className="leftItem"  key={index} onClick={()=>{this.setState({current:index})}}>
-//                                     {item.title}
-//                                 </div>
-//                             )
-//                         })
-//                     }
-//                 </div>
-//                 <div className="contentRight">
-//                     {this.childrenItem()}
-//                 </div>
-//             </div>
-//         )
-//     }
-// }
 
 export default connect(mapStateToProps)(Centre)
